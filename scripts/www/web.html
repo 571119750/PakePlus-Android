@@ -1,0 +1,2233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+    <title>Web-Mr.Chang</title>
+    <script src="https://static.cloudbase.net/cloudbase-js-sdk/2.17.0/cloudbase.full.js"></script>
+    <style>
+        /* ================= 紫色主题（深紫） ================= */
+        :root {
+            --bg-primary: #13111c;
+            --bg-secondary: #1a1726;
+            --bg-tertiary: #221d33;
+            --bg-hover: #2a2440;
+            --bg-active: #322b4a;
+            --bg-header: #1a1726;
+            --bg-category-title: #221d33;
+
+            --text-primary: #e8e6f0;
+            --text-secondary: #a9a3c2;
+            --text-muted: #6e6885;
+            --text-header: #e8e6f0;
+            --text-category-title: #d4cff0;
+
+            --border-color: #2e2745;
+            --border-dash: #251f38;
+
+            --shadow-color: rgba(0, 0, 0, 0.4);
+            --shadow-hover: rgba(0, 0, 0, 0.55);
+
+            --accent: #8b5cf6;
+            --accent-hover: #a78bfa;
+            --accent-soft: rgba(139, 92, 246, 0.15);
+            --accent-border: rgba(139, 92, 246, 0.4);
+
+            --tag-bg-default: #2a2440;
+            --tag-text-default: #a9a3c2;
+
+            --search-bg: #1a1726;
+            --search-text: #e8e6f0;
+
+            --footer-text: #6e6885;
+            --footer-border: #2e2745;
+
+            --category-tag-bg: rgba(139, 92, 246, 0.15);
+            --category-tag-text: #c4b5fd;
+
+            --back-to-top-bg: #2a2440;
+            --back-to-top-color: #c4b5fd;
+
+            --modal-bg: #1a1726;
+            --modal-text: #e8e6f0;
+
+            --input-border: #3a3158;
+            --delete-icon: #f87171;
+            --edit-icon: #a78bfa;
+
+            --custom-tag-bg: #2a2440;
+            --custom-tag-text: #e8e6f0;
+
+            --admin-btn-red: #f87171;
+            --admin-btn-red-hover: #fca5a5;
+
+            --btn-primary-bg: #8b5cf6;
+            --btn-primary-hover: #7c3aed;
+            --btn-secondary-bg: #2e2745;
+            --btn-secondary-hover: #3a3158;
+            --btn-radius: 8px;
+            --btn-transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+
+            --radius: 10px;
+            --radius-sm: 8px;
+            --radius-lg: 14px;
+
+            --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 6px 18px -4px rgba(80, 40, 180, 0.45);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+        }
+
+        i.fas, i.far, i.fa {
+            display: inline-block;
+            width: 1em;
+            height: 1em;
+            flex: 0 0 auto;
+            vertical-align: -0.125em;
+            background-color: currentColor;
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            -webkit-mask-position: center;
+            mask-position: center;
+            -webkit-mask-size: contain;
+            mask-size: contain;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            background-image:
+                radial-gradient(circle at 15% 0%, rgba(139, 92, 246, 0.12), transparent 45%),
+                radial-gradient(circle at 85% 100%, rgba(168, 85, 247, 0.1), transparent 40%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 16px;
+            max-width: 1400px;
+            margin: 0 auto;
+            font-size: 15px;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+        }
+
+        .header {
+            margin-bottom: 20px;
+            padding: 26px 20px;
+            background: linear-gradient(135deg, #231d33 0%, #2d2350 55%, #3b2a68 100%);
+            border: 1px solid rgba(139, 92, 246, 0.35);
+            border-radius: var(--radius-lg);
+            color: var(--text-header);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px -10px rgba(80, 40, 180, 0.55);
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% -40%, rgba(168, 85, 247, 0.45), transparent 60%);
+            pointer-events: none;
+        }
+        .header-avatar {
+            position: absolute;
+            left: 20px;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(196, 181, 253, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.25);
+            z-index: 1;
+        }
+        .header-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .header-avatar.no-img::after {
+            content: 'M';
+            font-size: 1.9rem;
+            font-weight: 700;
+            color: #e9d5ff;
+            line-height: 1;
+        }
+        .header-content {
+            text-align: center;
+            width: 100%;
+            padding: 0 80px 0 90px;
+            position: relative;
+            z-index: 1;
+        }
+        .header-content h1 {
+            font-size: 1.7rem;
+            margin-bottom: 12px;
+            letter-spacing: -0.3px;
+            font-weight: 700;
+        }
+        .header-content h1 a.title-link {
+            color: #ffffff;
+            text-decoration: none;
+            transition: color 0.18s ease, text-shadow 0.18s ease;
+            display: inline-block;
+        }
+        .header-content h1 a.title-link:hover {
+            color: #e9d5ff;
+            text-shadow: 0 0 20px rgba(196, 181, 253, 0.7);
+        }
+
+        .category-tags {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: stretch;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .category-tag {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            background-color: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(196, 181, 253, 0.4);
+            padding: 7px 14px 6px;
+            border-radius: 10px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            line-height: 1;
+            transition: all 0.18s ease;
+            cursor: pointer;
+            color: #e9d5ff;
+            white-space: nowrap;
+            backdrop-filter: blur(4px);
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        .category-tag i {
+            margin: 0;
+            font-size: 1rem;
+            opacity: 0.92;
+            line-height: 1;
+        }
+        .category-tag:hover {
+            background-color: #a78bfa;
+            border-color: #a78bfa;
+            color: #1a0f2e;
+            box-shadow: 0 0 18px rgba(167, 139, 250, 0.6);
+        }
+        .category-tag:hover i { opacity: 1; }
+        .category-tag:active { transform: scale(0.96); }
+
+        .fixed-category-tags {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(90deg, #231d33, #2d2350, #231d33);
+            border-bottom: 1px solid rgba(139, 92, 246, 0.4);
+            padding: 7px 14px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateY(-100%);
+            transition: transform 0.28s ease;
+            box-shadow: 0 6px 18px -4px rgba(80, 40, 180, 0.55);
+        }
+        .fixed-category-tags.show { transform: translateY(0); }
+
+        .fixed-category-tags .quick-nav {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            flex-shrink: 0;
+            padding-right: 12px;
+            border-right: 1px solid rgba(196, 181, 253, 0.28);
+        }
+        .fixed-category-tags .quick-nav a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            color: rgba(255, 255, 255, 0.62);
+            text-decoration: none;
+            font-size: 10.5px;
+            letter-spacing: .2px;
+            line-height: 1;
+            border: 1px solid transparent;
+            transition: background .14s, color .14s, border-color .14s, transform .1s;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            white-space: nowrap;
+        }
+        .fixed-category-tags .quick-nav a:hover {
+            background: rgba(255, 255, 255, 0.13);
+            color: #ffffff;
+            border-color: rgba(196, 181, 253, 0.45);
+        }
+        .fixed-category-tags .quick-nav a:active { transform: scale(0.95); }
+        .fixed-category-tags .quick-nav a.current {
+            background: rgba(167, 139, 250, 0.3);
+            border-color: rgba(196, 181, 253, 0.6);
+            color: #ffffff;
+        }
+        .fixed-category-tags .quick-nav .nav-ico {
+            width: 15px;
+            height: 15px;
+            flex: 0 0 auto;
+            opacity: .85;
+            transition: opacity .14s, transform .14s;
+        }
+        .fixed-category-tags .quick-nav a:hover .nav-ico { opacity: 1; transform: scale(1.06); }
+        .fixed-category-tags .quick-nav a.current .nav-ico { opacity: 1; }
+
+        .fixed-category-tags .fixed-tags-scroll {
+            flex: 1 1 auto;
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            padding: 2px 0;
+        }
+        .fixed-category-tags .fixed-tags-scroll::-webkit-scrollbar { height: 0; display: none; }
+        .fixed-category-tags .category-tag {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            margin: 0;
+            flex: 0 0 auto;
+            white-space: nowrap;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(196, 181, 253, 0.36);
+            color: #e9d5ff;
+            padding: 5px 10px;
+            font-size: 0.72rem;
+            font-weight: 500;
+            line-height: 1;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        .fixed-category-tags .category-tag i { margin: 0; font-size: 1rem; opacity: 0.92; line-height: 1; }
+        .fixed-category-tags .category-tag:hover {
+            background-color: #a78bfa;
+            border-color: #a78bfa;
+            color: #1a0f2e;
+            box-shadow: 0 0 16px rgba(167, 139, 250, 0.55);
+        }
+        .fixed-category-tags .category-tag:hover i { opacity: 1; }
+        .fixed-category-tags .category-tag:active { transform: scale(0.96); }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 44px;
+            height: 44px;
+            background-color: var(--accent);
+            border: 1px solid var(--accent-hover);
+            color: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.2s;
+            z-index: 999;
+            box-shadow: 0 6px 18px -4px rgba(124, 58, 237, 0.65);
+        }
+        .back-to-top i,
+        .back-to-top i.fas { font-size: 1.2rem; line-height: 1; background-color: #ffffff; }
+        .back-to-top:hover {
+            background-color: var(--accent-hover);
+            color: #ffffff;
+            border-color: var(--accent-hover);
+            box-shadow: 0 10px 24px -4px rgba(124, 58, 237, 0.75);
+        }
+        .back-to-top:active { transform: scale(0.92); }
+        .back-to-top.show { opacity: 1; visibility: visible; }
+
+        .container {
+            column-count: 1;
+            column-gap: 20px;
+        }
+        .category {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            break-inside: avoid;
+            margin-bottom: 20px;
+            width: 100%;
+            transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+        }
+        .category:hover {
+            border-color: var(--accent-border);
+            box-shadow: 0 0 0 1px var(--accent-soft), 0 12px 28px -14px rgba(139, 92, 246, 0.45);
+        }
+        .category-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            background: linear-gradient(90deg, rgba(139, 92, 246, 0.38), rgba(139, 92, 246, 0.12));
+        }
+        .category-title h2 {
+            font-size: 0.95rem;
+            color: var(--text-category-title);
+            font-weight: 600;
+            letter-spacing: 0.2px;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .link-list { list-style: none; }
+        .link-item {
+            padding: 9px 10px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            transition: background-color 0.14s ease;
+        }
+        .link-item:hover { background-color: var(--bg-hover); }
+        .link-info {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            min-width: 0;
+        }
+        .link-name {
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.18s ease;
+            word-break: break-word;
+        }
+        .link-name::before {
+            content: '↗';
+            font-size: 0.72em;
+            margin-right: 6px;
+            color: var(--accent);
+            opacity: 0.9;
+            font-weight: 700;
+        }
+        .link-name:hover {
+            color: var(--accent-hover);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+        .link-desc {
+            color: var(--tag-text-default);
+            font-size: 0.8rem;
+            margin-left: 4px;
+            padding: 1px 8px;
+            border-radius: 4px;
+            background-color: var(--tag-bg-default);
+            white-space: nowrap;
+        }
+
+        .search-box { max-width: 500px; margin: 0 auto 24px; padding: 0 12px; }
+        .search-form {
+            display: flex;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            overflow: hidden;
+            background-color: var(--search-bg);
+            transition: border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+        .search-form:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px var(--accent-soft);
+        }
+        .search-input {
+            flex: 1;
+            padding: 12px 18px;
+            border: none;
+            background-color: transparent;
+            color: var(--text-primary);
+            outline: none;
+            font-size: 0.9rem;
+            min-width: 0;
+        }
+        .search-input::placeholder { color: var(--text-muted); }
+        .search-btn {
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            color: #ffffff;
+            border: none;
+            padding: 0 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            white-space: nowrap;
+            transition: var(--btn-transition);
+        }
+        .search-btn:hover { background: linear-gradient(135deg, #6d28d9, #8b5cf6); }
+        .search-btn i, .search-btn i.fas { background-color: #ffffff; }
+
+        .footer {
+            text-align: center;
+            margin-top: 32px;
+            padding: 16px;
+            color: var(--footer-text);
+            font-size: 0.75rem;
+            border-top: 1px solid var(--footer-border);
+        }
+
+        .bottom-bar {
+            text-align: center;
+            margin-top: 12px;
+            padding: 10px 16px;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .bottom-bar > span { font-size: 0.8rem; color: var(--text-secondary); }
+        .bottom-bar .divider { width: 1px; height: 18px; background: var(--border-color); margin: 0 2px; }
+
+        button {
+            cursor: pointer;
+            transition: var(--btn-transition);
+            font-weight: 500;
+            touch-action: manipulation;
+        }
+        .bottom-bar button {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 6px 16px;
+            border-radius: var(--btn-radius);
+            font-size: 0.8rem;
+            min-height: 34px;
+        }
+        .bottom-bar button:hover {
+            border-color: var(--accent);
+            color: var(--accent-hover);
+            background: var(--bg-hover);
+        }
+        .bottom-bar button:active { transform: scale(0.96); }
+        #importFileInput { display: none; }
+
+        /* ================= 云同步条 ================= */
+        .cloud-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 8px;
+            padding: 8px 14px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            max-width: 560px;
+            margin-left: auto;
+            margin-right: auto;
+            flex-wrap: nowrap;
+            min-width: 0;
+        }
+        .cloud-ico {
+            width: 18px; height: 18px; flex: 0 0 18px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text-muted);
+            transition: color .3s ease;
+        }
+        .cloud-ico svg { width: 100%; height: 100%; display: block; transition: transform .3s ease; }
+        .cloud-ico.ok { color: #3ecf8e; }
+        .cloud-ico.sync { color: #e0de71; }
+        .cloud-ico.sync svg { animation: cloudSpin 1.2s linear infinite; }
+        .cloud-ico.err { color: #f87171; }
+        @keyframes cloudSpin { to { transform: rotate(360deg); } }
+
+        .cloud-status {
+            flex: 1 1 auto; min-width: 0;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .cloud-sync-btn {
+            display: inline-flex; align-items: center; gap: 4px;
+            height: 30px; padding: 0 12px;
+            border: 1px solid var(--accent-border);
+            background: var(--accent-soft);
+            color: var(--accent-hover);
+            border-radius: 7px;
+            font-size: 0.78rem; font-weight: 500;
+            cursor: pointer;
+            flex: 0 0 auto;
+            transition: background .15s, transform .12s;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+        .cloud-sync-btn:hover { background: rgba(139, 92, 246, 0.25); }
+        .cloud-sync-btn:active { transform: scale(.97); }
+        .cloud-sync-btn svg { width: 12px; height: 12px; flex: 0 0 12px; }
+
+        .cloud-cfg {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 30px; height: 30px;
+            border: 1px solid var(--border-color);
+            background: transparent; color: var(--text-muted);
+            border-radius: 7px;
+            cursor: pointer;
+            flex: 0 0 auto;
+            transition: background .15s, color .15s, border-color .15s;
+            font-family: inherit;
+        }
+        .cloud-cfg:hover {
+            background: var(--bg-hover);
+            color: var(--accent-hover);
+            border-color: var(--accent-border);
+        }
+        .cloud-cfg svg { width: 14px; height: 14px; }
+
+        /* 浮动 FAB */
+        .fab-group {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 998;
+        }
+        .fab-btn {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            color: #ffffff;
+            border: none;
+            box-shadow: 0 8px 22px -6px rgba(124, 58, 237, 0.65);
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: all 0.18s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .fab-btn i, .fab-btn i.fas { line-height: 1; background-color: #ffffff; }
+        .fab-btn:hover {
+            background: linear-gradient(135deg, #6d28d9, #8b5cf6);
+            box-shadow: 0 0 0 5px var(--accent-soft), 0 10px 26px -6px rgba(124, 58, 237, 0.75);
+            transform: translateY(-2px);
+        }
+        .fab-btn:active { transform: scale(0.94); }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(19, 17, 28, 0.78);
+            backdrop-filter: blur(6px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.2s;
+        }
+        .modal-overlay.active { visibility: visible; opacity: 1; }
+        #linkModal.modal-overlay { z-index: 2100; }
+
+        .modal-container {
+            background: var(--modal-bg);
+            color: var(--modal-text);
+            max-width: 95%;
+            width: 500px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 22px;
+            box-shadow: 0 30px 60px -20px rgba(80, 40, 180, 0.6);
+            max-height: 85vh;
+            overflow-y: auto;
+            margin: 16px;
+        }
+        .modal-container h3 {
+            margin-bottom: 16px;
+            font-size: 1.15rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-primary);
+        }
+        .modal-container h3 i { color: var(--accent); }
+        .modal-container h4 {
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        .modal-container input,
+        .modal-container select {
+            width: 100%;
+            padding: 11px 14px;
+            margin: 8px 0;
+            border: 1px solid var(--input-border);
+            border-radius: var(--radius-sm);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            outline: none;
+            font-size: 0.9rem;
+            transition: border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+        .modal-container input:focus,
+        .modal-container select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px var(--accent-soft);
+        }
+        .modal-container label {
+            font-weight: 500;
+            margin-top: 8px;
+            display: block;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        .modal-buttons button {
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            min-width: 80px;
+            border: 1px solid transparent;
+        }
+        .btn-submit {
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            color: #ffffff;
+        }
+        .btn-submit:hover { background: linear-gradient(135deg, #6d28d9, #8b5cf6); }
+        .btn-cancel {
+            background: var(--btn-secondary-bg);
+            color: var(--text-primary);
+            border-color: var(--border-color);
+        }
+        .btn-cancel:hover { border-color: var(--accent); color: var(--accent-hover); }
+        .error-msg {
+            color: var(--delete-icon);
+            font-size: 0.8rem;
+            margin-top: 8px;
+            min-height: 1em;
+        }
+
+        hr { margin: 16px 0; border: none; border-top: 1px solid var(--border-color); }
+
+        .manage-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            display: block;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        .manage-table th, .manage-table td {
+            text-align: left;
+            padding: 10px 8px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+            font-size: 0.85rem;
+        }
+        .manage-table th {
+            font-weight: 600;
+            background: var(--bg-tertiary);
+            color: var(--accent-hover);
+            position: sticky;
+            top: 0;
+        }
+        .manage-table tr:hover td { background: var(--bg-hover); }
+        .manage-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-start; }
+        .manage-actions button {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            font-size: 0.7rem;
+            padding: 5px 8px;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            color: var(--delete-icon) !important;
+            white-space: nowrap;
+        }
+        .manage-actions button:hover {
+            border-color: var(--delete-icon);
+            background: rgba(248, 113, 113, 0.1);
+        }
+        .manage-actions button:disabled { opacity: 0.35; cursor: not-allowed; }
+        .manage-actions button:active { transform: scale(0.96); }
+
+        .filter-bar {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .filter-bar select {
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--input-border);
+            font-size: 0.85rem;
+            outline: none;
+        }
+        .filter-bar select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+
+        .manage-cat-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            flex-wrap: wrap;
+            gap: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            margin-bottom: 8px;
+            background: var(--bg-secondary);
+            transition: border-color 0.18s ease, background 0.18s ease;
+        }
+        .manage-cat-item:hover {
+            border-color: var(--accent-border);
+            background: var(--bg-hover);
+        }
+        .manage-cat-item .cat-name {
+            flex: 2;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            display: inline-flex;
+            align-items: center;
+        }
+        .manage-cat-item .cat-name i {
+            margin-right: 7px;
+            color: var(--accent);
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        .manage-cat-item .cat-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .manage-cat-item button {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            font-size: 0.75rem;
+            padding: 5px 12px;
+            border-radius: var(--radius-sm);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--text-secondary);
+        }
+        .manage-cat-item button:hover {
+            border-color: var(--accent);
+            color: var(--accent-hover);
+            background: var(--bg-hover);
+        }
+        .manage-cat-item button:disabled { opacity: 0.35; cursor: not-allowed; }
+        #addCategoryBtn {
+            background: linear-gradient(135deg, #7c3aed, #a855f7) !important;
+            border: none;
+            border-radius: var(--radius-sm) !important;
+            padding: 5px 16px !important;
+            font-size: 0.8rem !important;
+            font-weight: 600 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px -4px rgba(124, 58, 237, 0.6);
+        }
+        #addCategoryBtn:hover { background: linear-gradient(135deg, #6d28d9, #8b5cf6) !important; }
+        #resetBtn { color: var(--text-secondary) !important; }
+
+        /* 云同步配置弹窗内部 */
+        .cloud-guide {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-top: 14px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            line-height: 1.75;
+        }
+        .cloud-guide-title {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 0.06em;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+        .cloud-guide ol { margin: 0; padding-left: 16px; }
+        .cloud-guide code {
+            color: var(--accent);
+            background: var(--accent-soft);
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-family: ui-monospace, monospace;
+            font-size: 0.72rem;
+        }
+
+        @media (min-width: 769px) {
+            body { padding: 24px; }
+            .container { column-count: 2; column-gap: 24px; }
+            .category { padding: 20px; margin-bottom: 24px; }
+            .category-title h2 { font-size: 1rem; }
+            .link-name { font-size: 0.95rem; }
+            .fab-btn { width: 56px; height: 56px; font-size: 1.65rem; }
+            .back-to-top { bottom: 30px; left: 30px; width: 48px; height: 48px; }
+            .back-to-top i { font-size: 1.3rem; }
+            .header-content h1 { font-size: 1.55rem; }
+            .header-avatar { left: 40px; width: 88px; height: 88px; }
+            .header-avatar.no-img::after { font-size: 2.3rem; }
+            .header-content { padding: 0 60px 0 130px; }
+            .search-box { max-width: 560px; }
+            .manage-actions button { font-size: 0.75rem; padding: 5px 10px; }
+            .category-tag { font-size: 0.82rem; padding: 8px 16px 7px; }
+            .category-tag i { font-size: 1.05rem; }
+        }
+        @media (min-width: 1025px) {
+            .container { column-count: 3; column-gap: 25px; }
+        }
+
+        @media (max-width: 768px) {
+            html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+            html, body { overflow-x: hidden; }
+            body {
+                padding: 10px 10px calc(92px + env(safe-area-inset-bottom));
+                font-size: 14.5px;
+            }
+            .header { padding: 16px 12px; gap: 8px; border-radius: var(--radius); margin-bottom: 14px; }
+            .header-avatar { position: relative; left: 0; width: 56px; height: 56px; margin: 0 auto 8px; }
+            .header-avatar.no-img::after { font-size: 1.6rem; }
+            .header-content { width: 100%; padding: 0; }
+            .header-content h1 { font-size: 1.2rem; margin-bottom: 10px; line-height: 1.35; padding: 0 34px; }
+            .category-tags { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 4px; }
+            .category-tag {
+                flex: 0 1 auto;
+                max-width: 100%;
+                padding: 6px 11px 5px;
+                font-size: 0.7rem;
+                gap: 3px;
+                border-radius: 9px;
+            }
+            .category-tag i { font-size: 0.95rem; }
+            .fixed-category-tags { padding: 5px 9px; gap: 8px; }
+            .fixed-category-tags .quick-nav { gap: 1px; padding-right: 8px; }
+            .fixed-category-tags .quick-nav a { gap: 2px; padding: 5px 7px; font-size: 10px; border-radius: 7px; }
+            .fixed-category-tags .quick-nav .nav-ico { width: 14px; height: 14px; }
+            .fixed-category-tags .fixed-tags-scroll { gap: 6px; }
+            .fixed-category-tags .category-tag { padding: 5px 9px 4px; font-size: 0.66rem; border-radius: 7px; gap: 2px; }
+            .fixed-category-tags .category-tag i { font-size: 0.92rem; }
+            .search-box { max-width: 100%; margin: 0 0 18px; padding: 0; }
+            .search-input { font-size: 16px; padding: 12px 14px; }
+            .search-btn { padding: 0 14px; font-size: 0.78rem; gap: 4px; }
+            .container { column-count: 1; column-gap: 0; }
+            .category { padding: 13px; border-radius: var(--radius); margin-bottom: 14px; }
+            .category-title { padding: 7px 10px; margin-bottom: 10px; }
+            .category-title h2 { font-size: 0.9rem; }
+            .link-item { padding: 11px 8px; gap: 6px; align-items: flex-start; }
+            .link-info { gap: 6px; }
+            .link-name { font-size: 0.9rem; line-height: 1.45; word-break: break-word; }
+            .link-desc {
+                font-size: 0.7rem;
+                padding: 1px 7px;
+                white-space: normal;
+                word-break: break-word;
+                max-width: 100%;
+            }
+            .modal-container {
+                width: 100%;
+                max-width: 100%;
+                max-height: 88vh;
+                padding: 16px;
+                margin: 10px;
+                border-radius: var(--radius);
+            }
+            .modal-container h3 { font-size: 1rem; margin-bottom: 12px; }
+            .modal-container h4 { font-size: 0.9rem; }
+            .modal-container input, .modal-container select {
+                font-size: 16px;
+                padding: 11px 12px;
+                margin: 6px 0;
+            }
+            .modal-buttons { gap: 8px; margin-top: 18px; }
+            .modal-buttons button { flex: 1 1 auto; min-width: 0; padding: 11px 14px; font-size: 0.85rem; }
+            .filter-bar { font-size: 0.8rem; gap: 8px; }
+            .filter-bar select { padding: 8px 12px; font-size: 0.8rem; flex: 1 1 auto; min-width: 0; }
+            .manage-table { -webkit-overflow-scrolling: touch; }
+            .manage-table th, .manage-table td { padding: 8px 6px; font-size: 0.72rem; }
+            .manage-actions { gap: 5px; }
+            .manage-actions button { font-size: 0.62rem; padding: 5px 7px; min-height: 28px; }
+            .manage-cat-item { padding: 10px; gap: 6px; }
+            .manage-cat-item .cat-name { flex: 1 1 100%; font-size: 0.86rem; }
+            .manage-cat-item .cat-actions { width: 100%; gap: 6px; }
+            .manage-cat-item button {
+                flex: 1 1 auto;
+                justify-content: center;
+                min-height: 32px;
+                font-size: 0.72rem;
+                padding: 6px 8px;
+            }
+            .bottom-bar { gap: 8px; padding: 10px 2px; }
+            .bottom-bar > span { font-size: 0.76rem; }
+            .bottom-bar button { font-size: 0.74rem; padding: 8px 12px; min-height: 36px; }
+            .bottom-bar .divider { height: 16px; }
+            .cloud-bar {
+                margin-top: 6px;
+                padding: 8px 10px;
+                gap: 6px;
+                max-width: 100%;
+            }
+            .cloud-status { font-size: 0.72rem; }
+            .cloud-sync-btn { height: 32px; padding: 0 10px; font-size: 0.74rem; }
+            .cloud-cfg { width: 32px; height: 32px; }
+            .footer { margin-top: 24px; padding: 14px 6px; font-size: 0.72rem; }
+            .fab-group { bottom: calc(16px + env(safe-area-inset-bottom)); right: 14px; gap: 10px; }
+            .fab-btn { width: 46px; height: 46px; font-size: 1.35rem; }
+            .back-to-top {
+                bottom: calc(16px + env(safe-area-inset-bottom));
+                left: 14px;
+                width: 40px;
+                height: 40px;
+            }
+            .back-to-top i { font-size: 1.08rem; }
+        }
+
+        @media (max-width: 380px) {
+            body { padding: 8px 8px calc(88px + env(safe-area-inset-bottom)); font-size: 14px; }
+            .header-content h1 { font-size: 1.05rem; padding: 0 30px; }
+            .category-tag { font-size: 0.64rem; padding: 5px 9px 4px; gap: 2px; }
+            .category-tag i { font-size: 0.9rem; }
+            .link-name { font-size: 0.85rem; }
+            .fab-btn { width: 42px; height: 42px; font-size: 1.25rem; }
+            .back-to-top { width: 38px; height: 38px; }
+            .back-to-top i { font-size: 1rem; }
+            .fixed-category-tags .quick-nav a { padding: 4px 5px; font-size: 9.5px; }
+            .fixed-category-tags .quick-nav .nav-ico { width: 13px; height: 13px; }
+            .fixed-category-tags .category-tag { padding: 4px 8px 3px; font-size: 0.62rem; }
+            .fixed-category-tags .category-tag i { font-size: 0.85rem; }
+        }
+    </style>
+    <!-- 内联 SVG 图标 -->
+    <script>
+    (function () {
+        var P = {
+            sun: "<circle cx='12' cy='12' r='4.6'/><path d='M12 1.6v2.3M12 20.1v2.3M4.3 4.3l1.6 1.6M18.1 18.1l1.6 1.6M1.6 12h2.3M20.1 12h2.3M4.3 19.7l1.6-1.6M18.1 5.9l1.6-1.6'/>",
+            moon: "<path d='M20.5 13.2A8.6 8.6 0 1 1 10.8 3.5a6.8 6.8 0 0 0 9.7 9.7z'/>",
+            search: "<circle cx='11' cy='11' r='7'/><path d='M20.5 20.5 16.8 16.8'/>",
+            lock: "<rect x='3.5' y='10.5' width='17' height='10.5' rx='2'/><path d='M7.5 10.5V7a4.5 4.5 0 0 1 9 0v3.5'/>",
+            link: "<path d='M10.2 13.3a4.5 4.5 0 0 0 6.8.5l2.6-2.6a4.5 4.5 0 0 0-6.4-6.4l-1.5 1.5'/><path d='M13.8 10.7a4.5 4.5 0 0 0-6.8-.5l-2.6 2.6a4.5 4.5 0 0 0 6.4 6.4l1.5-1.5'/>",
+            globe: "<circle cx='12' cy='12' r='9'/><path d='M3 12h18'/><path d='M12 3c2.4 2.7 3.6 5.7 3.6 9s-1.2 6.3-3.6 9c-2.4-2.7-3.6-5.7-3.6-9S9.6 5.7 12 3z'/>",
+            database: "<ellipse cx='12' cy='6' rx='8' ry='3'/><path d='M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6'/><path d='M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3'/>",
+            folder: "<path d='M3.5 5.5h5.2l2 2.5h9.8a1.5 1.5 0 0 1 1.5 1.5v8.5a1.5 1.5 0 0 1-1.5 1.5H3.5A1.5 1.5 0 0 1 2 18V7a1.5 1.5 0 0 1 1.5-1.5z'/>",
+            cloud: "<path d='M17.5 19a4.5 4.5 0 0 0 .5-8.97A6.5 6.5 0 0 0 5.6 12.2 4 4 0 0 0 6.5 19z'/>",
+            "cloud-upload-alt": "<path d='M17.5 19a4.5 4.5 0 0 0 .5-8.97A6.5 6.5 0 0 0 5.6 12.2 4 4 0 0 0 6.5 19z'/><path d='M12 16V9.5M9.4 12.1 12 9.5l2.6 2.6'/>",
+            "cloud-download-alt": "<path d='M17.5 19a4.5 4.5 0 0 0 .5-8.97A6.5 6.5 0 0 0 5.6 12.2 4 4 0 0 0 6.5 19z'/><path d='M12 9.5V16M9.4 13.4 12 16l2.6-2.6'/>",
+            download: "<path d='M12 3.5v11.5M7.5 10.5 12 15l4.5-4.5'/><path d='M4 20h16'/>",
+            upload: "<path d='M12 20.5V9M7.5 13.5 12 9l4.5 4.5'/><path d='M4 4h16'/>",
+            "undo-alt": "<path d='M3.5 4.5v5.5h5.5'/><path d='M4.1 13.2A8.5 8.5 0 1 0 6.6 6.5L3.5 10'/>",
+            plus: "<path d='M12 5v14M5 12h14'/>",
+            "list-ul": "<path d='M8.5 6h12M8.5 12h12M8.5 18h12'/><path d='M4 6h.01M4 12h.01M4 18h.01'/>",
+            cog: "<circle cx='12' cy='12' r='3.2'/><path d='M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z'/>",
+            "arrow-up": "<path d='M12 19.5V5M5.5 11.5 12 5l6.5 6.5'/>",
+            "arrow-down": "<path d='M12 4.5V19M5.5 12.5 12 19l6.5-6.5'/>",
+            "pencil-alt": "<path d='M12 20.5h9'/><path d='M16.6 3.6a2.1 2.1 0 0 1 3 3L7.3 18.9l-4 .9.9-4z'/>",
+            "trash-alt": "<path d='M3.5 6.5h17'/><path d='M8.5 6.5V4.5a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v2'/><path d='M18.8 6.5 18 20a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1l-.8-13.5'/><path d='M10 11v6M14 11v6'/>",
+            "info-circle": "<circle cx='12' cy='12' r='9'/><path d='M12 11v5.5M12 7.8h.01'/>",
+            "file-alt": "<path d='M14 3H6.8A1.3 1.3 0 0 0 5.5 4.3v15.4A1.3 1.3 0 0 0 6.8 21h10.4a1.3 1.3 0 0 0 1.3-1.3V7z'/><path d='M14 3v4h4.5'/><path d='M8.8 13h6.4M8.8 16.5h4.2'/>",
+            toolbox: "<path d='M3 8.5h18V19a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 19z'/><path d='M8.5 8.5v-2a1.5 1.5 0 0 1 1.5-1.5h4a1.5 1.5 0 0 1 1.5 1.5v2'/><path d='M3 13.5h18'/>",
+            robot: "<rect x='4' y='8' width='16' height='12' rx='2.5'/><path d='M12 8V5'/><circle cx='12' cy='3.6' r='1.1'/><path d='M9 13h.01M15 13h.01'/><path d='M9.5 16.5h5'/>",
+            newspaper: "<path d='M4 4.5h11.5a1 1 0 0 1 1 1v14H5a1 1 0 0 1-1-1z'/><path d='M16.5 8.5H19a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-3.5'/><path d='M7 8h5.5M7 11.5h5.5M7 15h3.5'/>",
+            flask: "<path d='M9.5 3h5M10.5 3v6.2L5.2 18.4A1.8 1.8 0 0 0 6.8 21h10.4a1.8 1.8 0 0 0 1.6-2.6L13.5 9.2V3'/><path d='M7.6 15.5h8.8'/>",
+            bullhorn: "<path d='M3.5 10.5v3a1 1 0 0 0 1 1h2l5.5 4V5.5L6.5 9.5h-2a1 1 0 0 0-1 1z'/><path d='M15.5 8.5a5 5 0 0 1 0 7'/><path d='M18.5 6a8.5 8.5 0 0 1 0 12'/>",
+            bookmark: "<path d='M6.5 3.5h11a1 1 0 0 1 1 1v16l-6.5-4.8L5.5 20.5v-16a1 1 0 0 1 1-1z'/>",
+            "graduation-cap": "<path d='M2.5 9 12 5l9.5 4L12 13z'/><path d='M6.5 11.3V17c0 1.4 2.5 2.5 5.5 2.5s5.5-1.1 5.5-2.5v-5.7'/>",
+            "shopping-cart": "<circle cx='9.5' cy='20' r='1.4'/><circle cx='18' cy='20' r='1.4'/><path d='M2.5 3.5H4.5l2.6 11.5h11.2L20.5 7H6'/>",
+            image: "<rect x='3' y='4.5' width='18' height='15' rx='2'/><circle cx='8.5' cy='10' r='1.6'/><path d='m21 15.5-5-5-9.5 9'/>",
+            music: "<path d='M9 18V6.2l10-2V16'/><circle cx='6.5' cy='18' r='2.5'/><circle cx='16.5' cy='16' r='2.5'/>",
+            film: "<rect x='3' y='4.5' width='18' height='15' rx='2'/><path d='M7.5 4.5v15M16.5 4.5v15M3 9.5h18M3 14.5h18'/>",
+            code: "<path d='m8.5 6.5-6 5.5 6 5.5M15.5 6.5l6 5.5-6 5.5'/>",
+            edit: "<path d='M11.5 4.5H5.5A1.5 1.5 0 0 0 4 6v12.5A1.5 1.5 0 0 0 5.5 20H18a1.5 1.5 0 0 0 1.5-1.5v-6'/><path d='M17.6 3.6a2.1 2.1 0 0 1 3 3L11 16.2l-4 .9.9-4z'/>"
+        };
+        var css = '';
+        for (var k in P) {
+            if (!Object.prototype.hasOwnProperty.call(P, k)) continue;
+            var svg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'>" + P[k] + "</svg>";
+            var uri = 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
+            css += '.fa-' + k + '{-webkit-mask-image:' + uri + ';mask-image:' + uri + ';}';
+        }
+        var st = document.createElement('style');
+        st.appendChild(document.createTextNode(css));
+        document.head.appendChild(st);
+    })();
+    </script>
+</head>
+<body>
+    <div class="header">
+        <div class="header-avatar" id="headerAvatar">
+            <img id="headerAvatarImg" data-src="https://s3.bmp.ovh/2026/02/06/Qg6svhnA.png" alt="logo">
+        </div>
+        <div class="header-content">
+            <h1><a href="index.html" class="title-link">Mr.Chang</a></h1>
+            <div id="dynamicCategoryTags" class="category-tags"></div>
+        </div>
+    </div>
+    <div id="fixedTagsBar" class="fixed-category-tags">
+        <nav class="quick-nav" aria-label="站点导航">
+            <a href="web.html" class="current" title="Web">
+                <svg class="nav-ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="8" cy="8" r="5.6"/>
+                    <path d="M2.4 8h11.2"/>
+                    <path d="M8 2.4c1.55 1.7 2.35 3.55 2.35 5.6S9.55 12.3 8 13.6C6.45 12.3 5.65 10.45 5.65 8S6.45 4.1 8 2.4z"/>
+                </svg>
+                <span>Web</span>
+            </a>
+            <a href="memo.html" title="Memo">
+                <svg class="nav-ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3.4 2.6h6.2L13 6v7.4a.9.9 0 0 1-.9.9H3.9a.9.9 0 0 1-.9-.9V3.5a.9.9 0 0 1 .9-.9z"/>
+                    <path d="M9.4 2.6V6H13"/>
+                    <path d="M5.4 8.7h5.2M5.4 11h3.4"/>
+                </svg>
+                <span>Memo</span>
+            </a>
+            <a href="mix.html" title="Mix">
+                <svg class="nav-ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 4.5h10M3 8h10M3 11.5h6"/>
+                </svg>
+                <span>Mix</span>
+            </a>
+        </nav>
+        <div class="fixed-tags-scroll" id="fixedTagsScroll"></div>
+    </div>
+    <div class="search-box">
+        <form class="search-form" id="baiduSearchForm">
+            <input type="text" class="search-input" id="searchInput" placeholder="输入关键词搜索网址...">
+            <button type="submit" class="search-btn"><i class="fas fa-search"></i> 百度搜索</button>
+        </form>
+    </div>
+    <div id="mainContainer" class="container"></div>
+
+    <!-- ============ 底部一行：登录状态 + 数据备份 / 数据更新 ============ -->
+    <div class="bottom-bar">
+        <span id="authStatus">未登录</span>
+        <button id="loginBtn">登录</button>
+        <span class="divider"></span>
+        <button id="exportBtn"><i class="fas fa-download"></i> 数据备份</button>
+        <button id="importBtn"><i class="fas fa-upload"></i> 数据更新</button>
+        <input type="file" id="importFileInput" accept=".md,.markdown,.json,.txt">
+    </div>
+
+    <!-- ============ 云同步条 ============ -->
+    <div class="cloud-bar">
+        <span class="cloud-ico" id="cloudDot" aria-hidden="true">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                 stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M13.4 7.6a5.2 5.2 0 0 1-9.6 3.2"/>
+                <path d="M2.6 8.4a5.2 5.2 0 0 1 9.6-3.2"/>
+                <path d="M12.6 2.8v3.2H9.4"/>
+                <path d="M3.4 13.2V10h3.2"/>
+            </svg>
+        </span>
+        <span class="cloud-status" id="cloudStatus">未配置 · 仅本地</span>
+        <button class="cloud-sync-btn" id="cloudSyncBtn" title="立即同步到云端">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                 stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M13.4 7.6a5.2 5.2 0 0 1-9.6 3.2"/>
+                <path d="M2.6 8.4a5.2 5.2 0 0 1 9.6-3.2"/>
+                <path d="M12.6 2.8v3.2H9.4"/>
+                <path d="M3.4 13.2V10h3.2"/>
+            </svg>
+            立即同步
+        </button>
+        <button class="cloud-cfg" id="cloudCfgBtn" title="CloudBase 配置" aria-label="CloudBase 配置">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                 stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="8" cy="8" r="2.2"/>
+                <path d="M13.3 8.9l1.2.7-.9 1.6-1.3-.4a4.5 4.5 0 0 1-1.6.9l-.2 1.3H8.6l-.2-1.3a4.5 4.5 0 0 1-1.6-.9l-1.3.4-.9-1.6 1.2-.7a4.5 4.5 0 0 1 0-1.8l-1.2-.7.9-1.6 1.3.4A4.5 4.5 0 0 1 8.4 3l.2-1.3h1.9l.2 1.3c.6.2 1.1.5 1.6.9l1.3-.4.9 1.6-1.2.7c.1.3.1.6.1.9s0 .6-.1.9z"/>
+            </svg>
+        </button>
+    </div>
+
+    <div class="footer">
+        <p>超级工具箱 © 2026 | 数据存储在浏览器中 | 每条网址可填写描述</p>
+    </div>
+    <div class="back-to-top" id="backToTop"><i class="fas fa-arrow-up"></i></div>
+    <div class="fab-group" id="fabGroup" style="display: none;">
+        <button class="fab-btn" id="addLinkFab" title="添加网址"><i class="fas fa-plus"></i></button>
+        <button class="fab-btn" id="manageLinksFab" title="统一管理网址"><i class="fas fa-list-ul"></i></button>
+        <button class="fab-btn" id="manageCatFab" title="管理分类"><i class="fas fa-cog"></i></button>
+    </div>
+
+    <div id="loginModal" class="modal-overlay">
+        <div class="modal-container">
+            <h3><i class="fas fa-lock"></i> 管理员登录</h3>
+            <div class="login-form">
+                <label>用户名</label><input type="text" id="loginUsername">
+                <label>密码</label><input type="password" id="loginPassword">
+                <div id="loginError" class="error-msg"></div>
+                <div class="modal-buttons">
+                    <button class="btn-cancel" id="cancelLoginBtn">取消</button>
+                    <button class="btn-submit" id="submitLoginBtn">登录</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="linkModal" class="modal-overlay">
+        <div class="modal-container">
+            <h3 id="linkModalTitle"><i class="fas fa-link"></i> 添加网址</h3>
+            <label>分类</label><select id="linkCategorySelect"></select>
+            <label>网站名称</label><input type="text" id="linkName" placeholder="例如：我的AI导航">
+            <label>网址 URL</label><input type="url" id="linkUrl" placeholder="https://...">
+            <label>描述 <span style="font-weight:400;font-size:0.75rem;color:var(--text-muted);">（可选，简要说明该网址用途）</span></label>
+            <input type="text" id="linkDescription" placeholder="填写网址描述...">
+            <input type="hidden" id="editLinkId" value="">
+            <div class="modal-buttons">
+                <button class="btn-cancel" id="cancelLinkModal">取消</button>
+                <button class="btn-submit" id="saveLinkBtn">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="manageLinksModal" class="modal-overlay">
+        <div class="modal-container" style="max-width: 1100px; width: 95%;">
+            <h3><i class="fas fa-globe"></i> 管理所有网址</h3>
+            <div class="filter-bar">
+                <span>筛选分类：</span>
+                <select id="manageCategoryFilter"><option value="all">全部分类</option></select>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="manage-table" id="linksManageTable">
+                    <thead>
+                        <tr><th>名称</th><th>网址</th><th>分类</th><th>描述</th><th>操作</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="modal-buttons"><button class="btn-cancel" id="closeManageLinksModal">关闭</button></div>
+        </div>
+    </div>
+
+    <div id="manageModal" class="modal-overlay">
+        <div class="modal-container">
+            <h3><i class="fas fa-folder"></i> 管理分类</h3>
+            <div>
+                <h4>📁 分类列表 <button id="addCategoryBtn" style="float:right;">+ 添加分类</button></h4>
+                <div id="categoryManageList" style="margin-top:12px;"></div>
+            </div>
+            <div class="modal-buttons"><button class="btn-cancel" id="closeManageModal">关闭</button></div>
+        </div>
+    </div>
+
+    <!-- ============ 云同步配置弹窗 ============ -->
+    <div id="cloudCfgModal" class="modal-overlay">
+        <div class="modal-container">
+            <h3><i class="fas fa-cloud"></i> CloudBase 配置</h3>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 6px; line-height:1.6;">
+                填写环境 ID 和 Publishable Key 后即可开启云端同步
+            </p>
+            <label>环境 ID</label>
+            <input type="text" id="cbEnvId" placeholder="例如：memo-3g9xxxxxxx" autocomplete="off" spellcheck="false">
+            <label>Publishable Key</label>
+            <input type="password" id="cbAccessKey" placeholder="粘贴控制台生成的 Publishable Key" autocomplete="off" spellcheck="false">
+            <div class="cloud-guide">
+                <div class="cloud-guide-title">首次使用请完成以下配置</div>
+                <ol>
+                    <li>在 CloudBase 控制台创建个人版环境（免费）</li>
+                    <li>「身份认证 → 登录方式」开启 <code>匿名登录</code></li>
+                    <li>「环境配置 → API Key 配置」生成 <code>Publishable Key</code></li>
+                    <li>「数据库」新建集合 <code>mc_web_v1</code></li>
+                    <li>集合权限设为 <code>{"read": true, "write": true}</code></li>
+                    <li>将环境 ID 与 Publishable Key 填入上方，保存即可</li>
+                </ol>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-cancel" id="cbCancel">取消</button>
+                <button class="btn-submit" id="cbSave">保存并同步</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // ---------- 内置完整116条数据 ----------
+    function getBuiltinLinks() {
+        const raw = [
+            { id: "b1", name: "微信网页版", url: "https://wx.qq.com/", category: "通用工具", desc: "" }, { id: "b2", name: "QQ邮箱",
+                url: "https://mail.qq.com/", category: "通用工具", desc: "AI" }, { id: "b3", name: "网易邮箱",
+                url: "https://mail.163.com/", category: "通用工具", desc: "AI" }, { id: "b4", name: "金山文档",
+                url: "https://www.kdocs.cn/latest", category: "通用工具", desc: "" }, { id: "b5", name: "搜狗搜索",
+                url: "https://sogou.com/", category: "通用工具", desc: "" }, { id: "b6", name: "京东",
+                url: "https://www.jd.com/", category: "通用工具", desc: "AI" }, { id: "b7", name: "百度搜索",
+                url: "https://www.baidu.com", category: "通用工具", desc: "免费" }, { id: "b8", name: "百度指数",
+                url: "https://index.baidu.com/", category: "通用工具", desc: "" }, { id: "b9", name: "创客贴",
+                url: "https://www.chuangkit.com/", category: "通用工具", desc: "" }, { id: "b10", name: "凤凰网",
+                url: "https://www.ifeng.com/", category: "通用工具", desc: "免费" }, { id: "b11", name: "腾讯云CloudBase",
+                url: "https://tcb.cloud.tencent.com/", category: "通用工具", desc: "免费" }, { id: "b12", name: "百度网盘",
+                url: "https://pan.baidu.com/", category: "通用工具", desc: "免费" }, { id: "b13", name: "阿里云盘",
+                url: "https://www.alipan.com/", category: "通用工具", desc: "工具" }, { id: "b14", name: "朱雀大模型",
+                url: "https://matrix.tencent.com/ai-detect/ai_gen_txt", category: "AI应用", desc: "AI" }, { id: "b15",
+                name: "DeepSeek", url: "https://chat.deepseek.com/", category: "AI应用", desc: "AI" }, { id: "b16",
+                name: "Kimi", url: "https://kimi.moonshot.cn/", category: "AI应用", desc: "" }, { id: "b17", name: "豆包",
+                url: "https://www.doubao.com/", category: "AI应用", desc: "工具" }, { id: "b18", name: "元宝",
+                url: "https://yuanbao.tencent.com", category: "AI应用", desc: "" }, { id: "b19", name: "橙篇",
+                url: "https://cp.baidu.com", category: "AI应用", desc: "AI" }, { id: "b20", name: "通义千问",
+                url: "https://tongyi.aliyun.com/", category: "AI应用", desc: "" }, { id: "b21", name: "文心",
+                url: "https://wenxin.baidu.com/new-chat", category: "AI应用", desc: "" }, { id: "b22", name: "天工Agent",
+                url: "https://www.tiangong.cn/", category: "AI应用", desc: "" }, { id: "b23", name: "纳米AI",
+                url: "https://bot.n.cn/?src=AIsearch", category: "AI应用", desc: "AI" }, { id: "b24", name: "秘塔AI",
+                url: "https://metaso.cn/", category: "AI应用", desc: "" }, { id: "b25", name: "即梦",
+                url: "https://jimeng.jianying.com/", category: "AI应用", desc: "" }, { id: "b26", name: "Removebg",
+                url: "https://www.remove.bg/zh", category: "AI应用", desc: "" }, { id: "b27", name: "ARC人像修复",
+                url: "https://arc.tencent.com/zh/ai-demos/faceRestoration", category: "AI应用", desc: "" }, { id: "b28",
+                name: "魔当AI", url: "https://seemts.com/zh/", category: "AI应用", desc: "" }, { id: "b29", name: "DeepFace",
+                url: "https://deepface.cc/", category: "AI应用", desc: "" }, { id: "b30", name: "海螺",
+                url: "https://hailuoai.com/", category: "AI应用", desc: "" }, { id: "b31", name: "一键抠图",
+                url: "https://www.yijiankoutu.com/", category: "AI应用", desc: "" }, { id: "b32", name: "Noiz声音克隆",
+                url: "https://noiz.ai/", category: "AI应用", desc: "" }, { id: "b33", name: "腾讯ima",
+                url: "https://ima.qq.com/", category: "AI应用", desc: "" }, { id: "b34", name: "腾讯元器",
+                url: "https://yuanqi.tencent.com/", category: "AI应用", desc: "" }, { id: "b35", name: "可灵",
+                url: "https://klingai.kuaishou.com/", category: "AI应用", desc: "" }, { id: "b36", name: "通义万象",
+                url: "https://tongyi.aliyun.com/wanxiang/", category: "AI应用", desc: "AI" }, { id: "b37", name: "盘锦日报平台",
+                url: "http://202.107.84.96:8088/login", category: "报纸", desc: "" }, { id: "b38", name: "人民日报",
+                url: "http://paper.people.com.cn/", category: "报纸", desc: "" }, { id: "b39", name: "辽宁日报",
+                url: "https://epaper.lnd.com.cn/lnrbepaper/pc/layout/", category: "报纸", desc: "" }, { id: "b40",
+                name: "辽沈晚报", url: "https://epaper.lnd.com.cn/lswbepaper/pc/layout/", category: "报纸", desc: "AI" },
+            { id: "b41", name: "扬子晚报", url: "https://epaper.yzwb.net/pc/layout/", category: "报纸", desc: "" },
+            { id: "b42", name: "南昌晚报", url: "http://www.ncwbw.cn/", category: "报纸", desc: "" }, { id: "b43",
+                name: "深圳晚报", url: "https://wb.sznews.com/", category: "报纸", desc: "" }, { id: "b44", name: "沂蒙晚报",
+                url: "https://ymwb.langya.cn/paper/pc/layout/", category: "报纸", desc: "" }, { id: "b45", name: "烟台晚报",
+                url: "https://www.shm.com.cn/paper/", category: "报纸", desc: "" }, { id: "b46", name: "太原晚报",
+                url: "http://epaper.tyrbw.com/tywb/", category: "报纸", desc: "" }, { id: "b47", name: "宁波晚报",
+                url: "http://epaper.cnnb.com.cn/nbwb/pc/layout/", category: "报纸", desc: "工具" }, { id: "b48",
+                name: "城市晚报", url: "http://www.cswbszb.com/cswb/pc/paper/layout/", category: "报纸", desc: "" },
+            { id: "b49", name: "金华晚报", url: "https://epaper.jhnews.com.cn/jrwb/jhwbpaper/pc/layout/", category: "报纸",
+                desc: "工具" }, { id: "b50", name: "大江晚报", url: "https://epaper.wuhunews.cn/pc/djwb/layout/",
+                category: "报纸", desc: "" }, { id: "b51", name: "今晚报",
+                url: "https://jinwanbaoepaper.enorth.com.cn/jwb/", category: "报纸", desc: "" }, { id: "b52",
+                name: "北京晚报", url: "https://bjrbdzb.bjd.com.cn/bjwb/paperindex.htm", category: "报纸", desc: "" },
+            { id: "b53", name: "南湖晚报", url: "https://nhwb.cnjxol.com/nhwbPaper/pc/layout/", category: "报纸",
+            desc: "" }, { id: "b54", name: "湛江晚报", url: "https://paper.gdzjdaily.com.cn/zjwb/", category: "报纸",
+                desc: "" }, { id: "b55", name: "沈阳晚报", url: "https://epaper.syd.com.cn/sywb/", category: "报纸",
+                desc: "" }, { id: "b56", name: "银川晚报", url: "https://szb.ycfbapp.com/ycwb/pc/layout/",
+                category: "报纸", desc: "" }, { id: "b57", name: "襄阳晚报", url: "https://xywb.hj.cn", category: "报纸",
+                desc: "" }, { id: "b58", name: "上党晚报", url: "https://epaper.ichangzhi.com.cn/sdwb/", category: "报纸",
+                desc: "" }, { id: "b59", name: "珠江晚报", url: "http://zjwb.hizh.cn/", category: "报纸", desc: "" },
+            { id: "b60", name: "南宁晚报", url: "http://nnwb.nnnews.net:8080/pcindex.jsp", category: "报纸", desc: "" },
+            { id: "b61", name: "济宁晚报", url: "http://www.jn001.com/jiningrb/index.shtml", category: "报纸", desc: "" },
+            { id: "b62", name: "郑州晚报", url: "https://zzwb.zynews.cn/", category: "报纸", desc: "" }, { id: "b63",
+                name: "衢州晚报", url: "https://qzwb.qz828.com/", category: "报纸", desc: "" }, { id: "b64", name: "大同晚报",
+                url: "http://epaper.dtnews.cn/dtwb/", category: "报纸", desc: "" }, { id: "b65", name: "羊城晚报",
+                url: "https://ep.ycwb.com/epaper/ycwb/", category: "报纸", desc: "" }, { id: "b66", name: "燕赵晚报",
+                url: "http://yzwb.sjzdaily.com.cn/yzwbpaper/pc/layout/", category: "报纸", desc: "" }, { id: "b67",
+                name: "长沙晚报", url: "https://www.icswb.com/", category: "报纸", desc: "" }, { id: "b68", name: "山西晚报",
+                url: "http://epaper.sxrb.com/", category: "报纸", desc: "" }, { id: "b69", name: "武汉晚报",
+                url: "https://whwb.cjn.cn/", category: "报纸", desc: "" }, { id: "b70", name: "半岛晨报",
+                url: "https://ep.bdcb.cn/", category: "报纸", desc: "AI" }, { id: "b71", name: "新闻晨报",
+                url: "https://ep.shxwcb.com/", category: "报纸", desc: "" }, { id: "b72", name: "潇湘晨报",
+                url: "https://xxcb.cn/epaper/", category: "报纸", desc: "" }, { id: "b73", name: "江南都市报",
+                url: "https://newspaper.jxnews.com.cn/jndsb/", category: "报纸", desc: "" }, { id: "b74", name: "楚天都市报",
+                url: "https://ctdsbepaper.hubeidaily.net/pc/column/", category: "报纸", desc: "" }, { id: "b75",
+                name: "西海都市报", url: "https://epaper.tibet3.com/xhdsb/", category: "报纸", desc: "" }, { id: "b76",
+                name: "三湘都市报", url: "https://epaper.voc.com.cn/sxdsb/", category: "报纸", desc: "" }, { id: "b77",
+                name: "华西都市报", url: "https://e.thecover.cn/shtml/index_hxdsb.shtml", category: "报纸", desc: "AI" },
+            { id: "b78", name: "都市快报", url: "https://hzdaily.hangzhou.com.cn/dskb/", category: "报纸", desc: "AI" },
+            { id: "b79", name: "免费PDF工具箱", url: "https://tools.pdf24.org/zh/", category: "黑科技", desc: "AI" },
+            { id: "b80", name: "网页转Markdown", url: "https://devtool.tech/batch-url-md", category: "黑科技",
+            desc: "" }, { id: "b81", name: "公众号转Markdown", url: "https://wechat2md.arminli.com/", category: "黑科技",
+                desc: "" }, { id: "b82", name: "Ocrspace", url: "https://ocr.space/", category: "黑科技", desc: "" },
+            { id: "b83", name: "Localsend", url: "https://localsend.org", category: "黑科技", desc: "工具" },
+            { id: "b84", name: "B站视频下载", url: "https://snapany.com/zh/bilibili", category: "黑科技", desc: "" },
+            { id: "b85", name: "33台词", url: "https://33.agilestudio.cn/", category: "黑科技", desc: "" },
+            { id: "b86", name: "字幕截图生成器", url: "https://disksing.com/fake-screenshot/", category: "黑科技",
+                desc: "工具" }, { id: "b87", name: "零克违禁词", url: "https://www.linkedsign.com", category: "黑科技",
+                desc: "" }, { id: "b88", name: "U钙网logo", url: "https://www.uugai.com/", category: "黑科技",
+            desc: "" }, { id: "b89", name: "ZhiMap", url: "https://zhimap.com/", category: "黑科技", desc: "AI" },
+            { id: "b90", name: "凹凸工坊", url: "https://www.autohanding.com/", category: "黑科技", desc: "" },
+            { id: "b91", name: "Get笔记", url: "https://www.biji.com/", category: "黑科技", desc: "免费" },
+            { id: "b92", name: "创作罐头", url: "https://www.czgts.cn/", category: "黑科技", desc: "" },
+            { id: "b93", name: "免费图床", url: "https://www.imgurl.org/upload", category: "黑科技", desc: "AI" },
+            { id: "b94", name: "沉浸式翻译", url: "https://app.immersivetranslate.com/", category: "黑科技", desc: "" },
+            { id: "b95", name: "图片提示词", url: "https://imageprompt.org/zh", category: "黑科技", desc: "" },
+            { id: "b96", name: "Md2card", url: "https://md2card.com/zh", category: "黑科技", desc: "AI" },
+            { id: "b97", name: "Handbrake", url: "https://handbrake.fr/", category: "黑科技", desc: "" },
+            { id: "b98", name: "比特浏览器", url: "https://www.bitbrowser.cn/", category: "黑科技", desc: "工具" },
+            { id: "b99", name: "抖音", url: "https://www.douyin.com/", category: "新媒体", desc: "工具" },
+            { id: "b100", name: "快手", url: "https://www.kuaishou.com/", category: "新媒体", desc: "" },
+            { id: "b101", name: "视频号助手", url: "https://channels.weixin.qq.com/login.html", category: "新媒体",
+                desc: "AI" }, { id: "b102", name: "今日头条创作者", url: "https://mp.toutiao.com/", category: "新媒体",
+                desc: "" }, { id: "b103", name: "微信公众号", url: "https://mp.weixin.qq.com/", category: "新媒体",
+                desc: "工具" }, { id: "b104", name: "大鱼号", url: "https://mp.dayu.com/", category: "新媒体",
+            desc: "" }, { id: "b105", name: "企鹅号", url: "https://om.qq.com/", category: "新媒体", desc: "免费" },
+            { id: "b106", name: "百家号", url: "https://baijiahao.baidu.com/", category: "新媒体", desc: "" },
+            { id: "b107", name: "Vivo开放平台", url: "https://kaixinkan.vivo.com.cn/", category: "新媒体", desc: "工具" },
+            { id: "b108", name: "哔哩哔哩", url: "https://www.bilibili.com/", category: "新媒体", desc: "" },
+            { id: "b109", name: "淘宝逛逛", url: "https://creator.guanghe.taobao.com/", category: "新媒体", desc: "AI" },
+            { id: "b110", name: "辽宁招生考试", url: "https://www.lnzsks.com/", category: "其他备忘", desc: "" },
+            { id: "b111", name: "辽宁综评", url: "https://pjxt.lnen.cn/login.do", category: "其他备忘", desc: "" },
+            { id: "b112", name: "辽宁干部在线", url: "https://www.lngbzx.gov.cn/pc/index.html#/", category: "其他备忘",
+                desc: "" }, { id: "b113", name: "人事考试网",
+                url: "https://zg.cpta.com.cn/examfront/login/saveLogin.htm#", category: "其他备忘", desc: "" },
+            { id: "b114", name: "学信网", url: "https://www.chsi.com.cn/", category: "其他备忘", desc: "" },
+            { id: "b115", name: "吴旭资料库",
+                url: "https://a5yo5lvdaa.feishu.cn/docx/WjvCdVSyToDLQuxeOgvcYnG0nqe", category: "其他备忘", desc: "" },
+            { id: "b116", name: "老高工具箱",
+                url: "https://ai.feishu.cn/wiki/GQMDwpl1eikdjKkfL5vcyuVvn7Z", category: "其他备忘", desc: "" }
+        ];
+        return raw.map(item => ({ ...item, description: item.desc || '' }));
+    }
+
+    let appData = { categories: [], links: [], updated_at: null, tombstones: {} };
+    const STORAGE_KEY = 'toolbox_flex_data_v3';
+
+    /* =========================================================
+       云同步配置
+       ========================================================= */
+    const CB_CFG_KEY = 'mc_cloudbase_cfg_v1';
+    const CB_COLLECTION = 'mc_web_v1';
+    const CB_DATA_DOC = '__web_data__';
+
+    let cbCfg = { envId: '', accessKey: '' };
+    let cbApp = null;
+    let cbDb = null;
+    let cbReady = false;
+    let cbSyncing = false;
+    let cbTimer = null;
+    let cbInternal = false;
+    let cbLocalWasDefault = false;
+
+    function saveToLocalStorage(opts) {
+        appData.updated_at = new Date().toISOString();
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                categories: appData.categories,
+                links: appData.links,
+                tombstones: appData.tombstones || {},
+                updated_at: appData.updated_at
+            }));
+        } catch (e) {
+            console.warn('保存失败', e);
+        }
+        if (!(opts && opts.skipSync) && !cbInternal) cbScheduleSync();
+    }
+
+    function loadFromLocalStorage() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) try {
+            let data = JSON.parse(stored);
+            if (data.categories && data.links) {
+                appData.categories = data.categories;
+                appData.links = data.links;
+                appData.updated_at = data.updated_at || null;
+                appData.tombstones = (data.tombstones && typeof data.tombstones === 'object') ? data.tombstones : {};
+                return true;
+            }
+        } catch (e) {}
+        return false;
+    }
+
+    function initDefaultData() {
+        appData.categories = ["通用工具", "AI应用", "报纸", "黑科技", "新媒体", "其他备忘"];
+        appData.links = getBuiltinLinks();
+        appData.tombstones = {};
+        saveToLocalStorage({ skipSync: true });
+    }
+
+    /* =========================================================
+       云同步核心
+       ========================================================= */
+    function cbLoadCfg() {
+        try {
+            const raw = localStorage.getItem(CB_CFG_KEY);
+            if (raw) {
+                const o = JSON.parse(raw);
+                return { envId: (o.envId || '').trim(), accessKey: (o.accessKey || '').trim() };
+            }
+        } catch (e) {}
+        return { envId: '', accessKey: '' };
+    }
+    function cbSaveCfg() {
+        try { localStorage.setItem(CB_CFG_KEY, JSON.stringify(cbCfg)); } catch (e) {}
+    }
+    function cbHasCfg() { return !!(cbCfg.envId && cbCfg.accessKey); }
+
+    function cbSetStatus(text, stateStr) {
+        const el = document.getElementById('cloudStatus');
+        if (el) el.textContent = text;
+        const dot = document.getElementById('cloudDot');
+        if (dot) dot.className = 'cloud-ico' + (stateStr ? ' ' + stateStr : '');
+    }
+    function cbTimeNow() {
+        const d = new Date();
+        return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+    }
+
+    async function cbInit() {
+        if (!cbHasCfg()) { cbSetStatus('未配置 · 仅本地', ''); cbReady = false; return false; }
+        if (typeof cloudbase === 'undefined') { cbSetStatus('SDK 未加载', 'err'); cbReady = false; return false; }
+        try {
+            cbSetStatus('连接中…', 'sync');
+            cbApp = cloudbase.init({ env: cbCfg.envId, accessKey: cbCfg.accessKey });
+            const auth = cbApp.auth({ persistence: 'local' });
+            if (!auth.hasLoginState()) {
+                await auth.signInAnonymously();
+                console.log('[CloudBase] 匿名登录成功');
+            } else {
+                console.log('[CloudBase] 复用已有登录态');
+            }
+            cbDb = cbApp.database();
+            cbReady = true;
+            console.log('[CloudBase] 初始化完成，环境:', cbCfg.envId);
+            return true;
+        } catch (err) {
+            console.error('[CloudBase init]', err);
+            cbReady = false;
+            const msg = String((err && (err.message || err.error_description || err.error)) || err || '未知错误');
+            cbSetStatus('连接失败：' + msg.slice(0, 40), 'err');
+            return false;
+        }
+    }
+
+    function cbScheduleSync() {
+        if (!cbHasCfg()) return;
+        clearTimeout(cbTimer);
+        cbTimer = setTimeout(function () { cbSyncNow(); }, 2000);
+    }
+
+    async function cbSyncNow() {
+        if (!cbHasCfg()) { cbSetStatus('未配置 · 仅本地', ''); return; }
+        if (!cbReady) {
+            const ok = await cbInit();
+            if (!ok) return;
+        }
+        if (cbSyncing) return;
+        cbSyncing = true;
+        cbSetStatus('同步中…', 'sync');
+
+        try {
+            const col = cbDb.collection(CB_COLLECTION);
+            const docRef = col.doc(CB_DATA_DOC);
+
+            // 读取云端数据
+            let cloudData = null;
+            try {
+                const res = await docRef.get();
+                const raw = res && res.data;
+                cloudData = Array.isArray(raw) ? (raw[0] || null) : (raw || null);
+            } catch (e) {
+                cloudData = null;
+            }
+
+            const localTime = appData.updated_at ? (new Date(appData.updated_at).getTime() || 0) : 0;
+            const cloudTime = (cloudData && cloudData.updatedAt)
+                ? (new Date(cloudData.updatedAt).getTime() || 0)
+                : 0;
+
+            // 情况 1：本地是默认数据（首次打开），云端有数据 → 云端优先
+            if (cbLocalWasDefault && cloudData) {
+                appData.categories = Array.isArray(cloudData.categories) ? cloudData.categories.slice() : [];
+                appData.links = Array.isArray(cloudData.links) ? cloudData.links.slice() : [];
+                appData.tombstones = (cloudData.tombstones && typeof cloudData.tombstones === 'object')
+                    ? cloudData.tombstones : {};
+                appData.updated_at = cloudData.updatedAt;
+                cbLocalWasDefault = false;
+                cbInternal = true;
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                        categories: appData.categories,
+                        links: appData.links,
+                        tombstones: appData.tombstones,
+                        updated_at: appData.updated_at
+                    }));
+                } catch (e) {}
+                cbInternal = false;
+                renderFullPage();
+                cbSetStatus('已下载 · ' + cbTimeNow() + ' · ' + appData.links.length + ' 条', 'ok');
+                cbSyncing = false;
+                return;
+            }
+
+            // 情况 2：云端为空 → 上传
+            if (!cloudData) {
+                await docRef.set({
+                    categories: appData.categories,
+                    links: appData.links,
+                    tombstones: appData.tombstones || {},
+                    updatedAt: new Date().toISOString()
+                });
+                cbLocalWasDefault = false;
+                cbSetStatus('已上传 · ' + cbTimeNow() + ' · ' + appData.links.length + ' 条', 'ok');
+                cbSyncing = false;
+                return;
+            }
+
+            // 情况 3：两边都有 → 比较时间戳
+            if (localTime > cloudTime + 1000) {
+                // 本地更新 → 上传
+                await docRef.set({
+                    categories: appData.categories,
+                    links: appData.links,
+                    tombstones: appData.tombstones || {},
+                    updatedAt: new Date().toISOString()
+                });
+                cbSetStatus('已上传 · ' + cbTimeNow() + ' · ' + appData.links.length + ' 条', 'ok');
+            } else if (cloudTime > localTime + 1000) {
+                // 云端更新 → 下载
+                appData.categories = Array.isArray(cloudData.categories) ? cloudData.categories.slice() : [];
+                appData.links = Array.isArray(cloudData.links) ? cloudData.links.slice() : [];
+                appData.tombstones = (cloudData.tombstones && typeof cloudData.tombstones === 'object')
+                    ? cloudData.tombstones : {};
+                appData.updated_at = cloudData.updatedAt;
+                cbInternal = true;
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                        categories: appData.categories,
+                        links: appData.links,
+                        tombstones: appData.tombstones,
+                        updated_at: appData.updated_at
+                    }));
+                } catch (e) {}
+                cbInternal = false;
+                renderFullPage();
+                cbSetStatus('已下载 · ' + cbTimeNow() + ' · ' + appData.links.length + ' 条', 'ok');
+            } else {
+                cbSetStatus('已是最新 · ' + cbTimeNow() + ' · ' + appData.links.length + ' 条', 'ok');
+            }
+        } catch (err) {
+            console.error('[CloudBase sync]', err);
+            const msg = String((err && (err.message || err.error_description || err.error)) || err || '未知错误');
+            cbSetStatus('同步失败：' + msg.slice(0, 40), 'err');
+        } finally {
+            cbSyncing = false;
+        }
+    }
+
+    function cbBindCloudUI() {
+        const overlay = document.getElementById('cloudCfgModal');
+        const envIn = document.getElementById('cbEnvId');
+        const keyIn = document.getElementById('cbAccessKey');
+
+        document.getElementById('cloudCfgBtn').addEventListener('click', function () {
+            envIn.value = cbCfg.envId || '';
+            keyIn.value = cbCfg.accessKey || '';
+            overlay.classList.add('active');
+            setTimeout(function () { envIn.focus(); }, 30);
+        });
+        document.getElementById('cbCancel').addEventListener('click', function () {
+            overlay.classList.remove('active');
+        });
+        overlay.addEventListener('click', function (e) {
+            if (e.target === overlay) overlay.classList.remove('active');
+        });
+        document.getElementById('cbSave').addEventListener('click', async function () {
+            const envId = envIn.value.trim();
+            const accessKey = keyIn.value.trim();
+            if (!envId || !accessKey) {
+                alert('请填写环境 ID 和 Publishable Key');
+                return;
+            }
+            cbCfg = { envId: envId, accessKey: accessKey };
+            cbSaveCfg();
+            overlay.classList.remove('active');
+            cbApp = null; cbDb = null; cbReady = false;
+            cbSetStatus('连接中…', 'sync');
+            const ok = await cbInit();
+            if (ok) {
+                cbLocalWasDefault = false;
+                await cbSyncNow();
+            }
+        });
+        document.getElementById('cloudSyncBtn').addEventListener('click', function () {
+            if (!cbHasCfg()) {
+                document.getElementById('cloudCfgBtn').click();
+                return;
+            }
+            cbLocalWasDefault = false;
+            cbSyncNow();
+        });
+    }
+
+    /* =========================================================
+       分类图标 & 徽章
+       ========================================================= */
+    function escapeHtml(s) {
+        if (!s) return '';
+        return String(s).replace(/[&<>"]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            if (m === '"') return '&quot;';
+            return m;
+        });
+    }
+
+    const CATEGORY_ICON_MAP = {
+        "通用工具": "fa-toolbox",
+        "AI应用": "fa-robot",
+        "报纸": "fa-newspaper",
+        "黑科技": "fa-flask",
+        "新媒体": "fa-bullhorn",
+        "其他备忘": "fa-bookmark"
+    };
+    const DEFAULT_CATEGORY_ICON = "fa-folder";
+
+    function getCategoryIcon(name) {
+        if (!name) return DEFAULT_CATEGORY_ICON;
+        if (CATEGORY_ICON_MAP[name]) return CATEGORY_ICON_MAP[name];
+        const n = String(name).toLowerCase();
+        if (n.includes('ai') || n.includes('智能') || n.includes('模型')) return 'fa-robot';
+        if (n.includes('报') || n.includes('新闻') || n.includes('资讯')) return 'fa-newspaper';
+        if (n.includes('工具') || n.includes('效率')) return 'fa-toolbox';
+        if (n.includes('媒体') || n.includes('视频') || n.includes('直播')) return 'fa-bullhorn';
+        if (n.includes('科技') || n.includes('黑') || n.includes('实验')) return 'fa-flask';
+        if (n.includes('备忘') || n.includes('笔记') || n.includes('记录')) return 'fa-bookmark';
+        if (n.includes('学习') || n.includes('教育') || n.includes('考试')) return 'fa-graduation-cap';
+        if (n.includes('购物') || n.includes('商城') || n.includes('电商')) return 'fa-shopping-cart';
+        if (n.includes('图片') || n.includes('设计') || n.includes('素材')) return 'fa-image';
+        if (n.includes('音乐') || n.includes('音频')) return 'fa-music';
+        if (n.includes('影视') || n.includes('电影')) return 'fa-film';
+        if (n.includes('代码') || n.includes('开发')) return 'fa-code';
+        if (n.includes('云') || n.includes('存储') || n.includes('网盘')) return 'fa-cloud';
+        if (n.includes('数据') || n.includes('资料') || n.includes('表格')) return 'fa-database';
+        return DEFAULT_CATEGORY_ICON;
+    }
+
+    function categoryTagHtml(name) {
+        return `<span class="category-tag" data-category="${escapeHtml(name)}"><i class="fas ${getCategoryIcon(name)}"></i><span>${escapeHtml(name)}</span></span>`;
+    }
+
+    function refreshManageTableIfOpen() {
+        const modal = document.getElementById('manageLinksModal');
+        if (modal && modal.classList.contains('active')) {
+            const filterVal = document.getElementById('manageCategoryFilter')?.value || 'all';
+            renderManageTable(filterVal);
+        }
+    }
+
+    function renderManageTable(categoryFilter) {
+        const tbody = document.querySelector('#linksManageTable tbody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        let filteredLinks = categoryFilter === 'all' ? appData.links : appData.links.filter(l => l.category === categoryFilter);
+        filteredLinks.forEach((link, idx) => {
+            let row = tbody.insertRow();
+            row.insertCell(0).innerHTML = `<strong>${escapeHtml(link.name)}</strong>`;
+            row.insertCell(1).innerHTML =
+                `<a href="${escapeHtml(link.url)}" target="_blank" style="color:var(--edit-icon);">${escapeHtml(link.url.length > 60 ? link.url.substring(0,60)+'…' : link.url)}</a>`;
+            row.insertCell(2).innerHTML = `<i class="fas ${getCategoryIcon(link.category)}" style="margin-right:5px;color:var(--accent);opacity:.85;font-size:.9em;"></i>${escapeHtml(link.category)}`;
+            const descHtml = link.description ?
+                `<span style="color:var(--text-secondary);font-size:0.8rem;">${escapeHtml(link.description)}</span>` :
+                '—';
+            row.insertCell(3).innerHTML = descHtml;
+            let actionCell = row.insertCell(4);
+            actionCell.className = 'manage-actions';
+            actionCell.innerHTML = `
+                    <button class="move-up-btn" data-id="${link.id}" data-filter="${categoryFilter}" ${idx === 0 ? 'disabled' : ''}><i class="fas fa-arrow-up"></i> 上移</button>
+                    <button class="move-down-btn" data-id="${link.id}" data-filter="${categoryFilter}" ${idx === filteredLinks.length-1 ? 'disabled' : ''}><i class="fas fa-arrow-down"></i> 下移</button>
+                    <button class="edit-manage-btn" data-id="${link.id}"><i class="fas fa-pencil-alt"></i> 编辑</button>
+                    <button class="delete-manage-btn" data-id="${link.id}"><i class="fas fa-trash-alt"></i> 删除</button>
+                `;
+        });
+        document.querySelectorAll('.move-up-btn').forEach(btn => btn.addEventListener('click', (e) => {
+            const id = btn.getAttribute('data-id');
+            const index = appData.links.findIndex(l => l.id === id);
+            if (index > 0) {
+                [appData.links[index - 1], appData.links[index]] = [appData.links[index], appData.links[index - 1]];
+                saveToLocalStorage();
+                renderFullPage();
+                refreshManageTableIfOpen();
+            }
+        }));
+        document.querySelectorAll('.move-down-btn').forEach(btn => btn.addEventListener('click', (e) => {
+            const id = btn.getAttribute('data-id');
+            const index = appData.links.findIndex(l => l.id === id);
+            if (index < appData.links.length - 1) {
+                [appData.links[index + 1], appData.links[index]] = [appData.links[index], appData.links[index + 1]];
+                saveToLocalStorage();
+                renderFullPage();
+                refreshManageTableIfOpen();
+            }
+        }));
+        document.querySelectorAll('.edit-manage-btn').forEach(btn => btn.addEventListener('click', () => {
+            let id = btn.getAttribute('data-id');
+            let link = appData.links.find(l => l.id === id);
+            if (link) openLinkModal(link);
+        }));
+        document.querySelectorAll('.delete-manage-btn').forEach(btn => btn.addEventListener('click', () => {
+            let id = btn.getAttribute('data-id');
+            if (confirm("确定删除该网址吗？")) {
+                appData.links = appData.links.filter(l => l.id !== id);
+                saveToLocalStorage();
+                renderFullPage();
+                refreshManageTableIfOpen();
+            }
+        }));
+    }
+
+    function openManageLinksModal() {
+        if (!isLoggedIn) return;
+        const filterSelect = document.getElementById('manageCategoryFilter');
+        filterSelect.innerHTML = '<option value="all">全部分类</option>' + appData.categories.map(c =>
+            `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+        filterSelect.value = 'all';
+        renderManageTable('all');
+        filterSelect.onchange = () => renderManageTable(filterSelect.value);
+        document.getElementById('manageLinksModal').classList.add('active');
+    }
+
+    function closeManageLinksModal() { document.getElementById('manageLinksModal').classList.remove('active'); }
+
+    function renderFullPage() {
+        const tagsContainer = document.getElementById('dynamicCategoryTags');
+        tagsContainer.innerHTML = appData.categories.map(c => categoryTagHtml(c)).join('');
+        const fixedScroll = document.getElementById('fixedTagsScroll');
+        fixedScroll.innerHTML = appData.categories.map(c => categoryTagHtml(c)).join('');
+        const container = document.getElementById('mainContainer');
+        container.innerHTML = '';
+        for (let cat of appData.categories) {
+            const catLinks = appData.links.filter(l => l.category === cat);
+            if (catLinks.length === 0) continue;
+            const catDiv = document.createElement('div');
+            catDiv.className = 'category';
+            catDiv.setAttribute('data-category-name', cat);
+            catDiv.innerHTML = `<div class="category-title"><h2><i class="fas ${getCategoryIcon(cat)}" style="margin-right:7px;opacity:.85;font-size:.92em;"></i>${escapeHtml(cat)}</h2></div><ul class="link-list"></ul>`;
+            const ul = catDiv.querySelector('.link-list');
+            catLinks.forEach(link => {
+                const li = document.createElement('li');
+                li.className = 'link-item';
+                let descHtml = '';
+                if (link.description) {
+                    descHtml = `<span class="link-desc">${escapeHtml(link.description)}</span>`;
+                }
+                li.innerHTML =
+                    `<div class="link-info"><a href="${escapeHtml(link.url)}" target="_blank" class="link-name">${escapeHtml(link.name)}</a>${descHtml}</div>`;
+                ul.appendChild(li);
+            });
+            container.appendChild(catDiv);
+        }
+        attachCategoryClickEvents();
+    }
+
+    function attachCategoryClickEvents() {
+        document.querySelectorAll('.category-tag').forEach(tag => {
+            tag.removeEventListener('click', scrollToCategory);
+            tag.addEventListener('click', scrollToCategory);
+        });
+    }
+
+    function scrollToCategory(e) {
+        const catName = e.currentTarget.getAttribute('data-category');
+        const targetCat = Array.from(document.querySelectorAll('.category')).find(c => c.getAttribute('data-category-name') === catName);
+        if (targetCat) {
+            const offset = document.getElementById('fixedTagsBar').classList.contains('show') ? document.getElementById('fixedTagsBar').offsetHeight : 0;
+            window.scrollTo({
+                top: targetCat.getBoundingClientRect().top + window.scrollY - offset - 10,
+                behavior: 'smooth'
+            });
+            targetCat.style.boxShadow = '0 0 0 3px var(--accent-soft)';
+            setTimeout(() => targetCat.style.boxShadow = '', 1500);
+        }
+    }
+
+    function openLinkModal(link = null) {
+        if (!isLoggedIn) return;
+        document.getElementById('linkModalTitle').innerHTML = link ? '<i class="fas fa-edit"></i> 编辑网址' :
+            '<i class="fas fa-plus"></i> 添加网址';
+        document.getElementById('editLinkId').value = link ? link.id : '';
+        document.getElementById('linkName').value = link ? link.name : '';
+        document.getElementById('linkUrl').value = link ? link.url : '';
+        document.getElementById('linkDescription').value = link && link.description ? link.description : '';
+        document.getElementById('linkCategorySelect').innerHTML = appData.categories.map(c =>
+            `<option value="${escapeHtml(c)}" ${link && link.category===c ? 'selected' : ''}>${escapeHtml(c)}</option>`
+        ).join('');
+        document.getElementById('linkModal').classList.add('active');
+    }
+
+    function closeLinkModal() { document.getElementById('linkModal').classList.remove('active'); }
+
+    function saveLinkFromModal() {
+        if (!isLoggedIn) return;
+        let name = document.getElementById('linkName').value.trim();
+        let url = document.getElementById('linkUrl').value.trim();
+        let category = document.getElementById('linkCategorySelect').value;
+        let description = document.getElementById('linkDescription').value.trim();
+        if (!name || !url) { alert("请填写名称和网址"); return; }
+        if (!url.startsWith('http')) url = 'https://' + url;
+        let editId = document.getElementById('editLinkId').value;
+        if (editId) {
+            let idx = appData.links.findIndex(l => l.id === editId);
+            if (idx !== -1) appData.links[idx] = { ...appData.links[idx], name, url, category, description };
+        } else {
+            appData.links.push({ id: Date.now() + '_' + Math.random().toString(36), name, url, category, description });
+        }
+        saveToLocalStorage();
+        renderFullPage();
+        closeLinkModal();
+        refreshManageTableIfOpen();
+    }
+
+    function renderCategoryManageUI() {
+        let container = document.getElementById('categoryManageList');
+        container.innerHTML = '';
+        appData.categories.forEach((cat, idx) => {
+            const div = document.createElement('div');
+            div.className = 'manage-cat-item';
+            div.innerHTML =
+                `<span class="cat-name"><i class="fas ${getCategoryIcon(cat)}"></i>${escapeHtml(cat)}</span><div class="cat-actions"><button class="edit-cat" data-index="${idx}"><i class="fas fa-pencil-alt"></i> 编辑</button><button class="move-up-cat" data-index="${idx}" ${idx===0?'disabled':''}><i class="fas fa-arrow-up"></i> 上移</button><button class="move-down-cat" data-index="${idx}" ${idx===appData.categories.length-1?'disabled':''}><i class="fas fa-arrow-down"></i> 下移</button>${!["通用工具","AI应用","报纸","黑科技","新媒体","其他备忘"].includes(cat) ? `<button class="del-cat" data-index="${idx}"><i class="fas fa-trash-alt"></i> 删除</button>` : '<span style="color:var(--text-muted);font-size:0.75rem;">内置</span>'}</div>`;
+            container.appendChild(div);
+        });
+        attachCatEvents();
+    }
+
+    function attachCatEvents() {
+        document.querySelectorAll('.edit-cat').forEach(btn => btn.addEventListener('click', () => {
+            const idx = parseInt(btn.dataset.index);
+            const newName = prompt("新分类名称", appData.categories[idx]);
+            if (newName && newName.trim() && !appData.categories.includes(newName.trim())) {
+                const oldName = appData.categories[idx];
+                appData.categories[idx] = newName.trim();
+                appData.links.forEach(l => { if (l.category === oldName) l.category = newName.trim(); });
+                saveToLocalStorage();
+                renderFullPage();
+                renderCategoryManageUI();
+            }
+        }));
+        document.querySelectorAll('.move-up-cat').forEach(btn => btn.addEventListener('click', () => {
+            const idx = parseInt(btn.dataset.index);
+            if (idx > 0) {
+                [appData.categories[idx - 1], appData.categories[idx]] = [appData.categories[idx], appData.categories[idx - 1]];
+                saveToLocalStorage();
+                renderFullPage();
+                renderCategoryManageUI();
+            }
+        }));
+        document.querySelectorAll('.move-down-cat').forEach(btn => btn.addEventListener('click', () => {
+            const idx = parseInt(btn.dataset.index);
+            if (idx < appData.categories.length - 1) {
+                [appData.categories[idx + 1], appData.categories[idx]] = [appData.categories[idx], appData.categories[idx + 1]];
+                saveToLocalStorage();
+                renderFullPage();
+                renderCategoryManageUI();
+            }
+        }));
+        document.querySelectorAll('.del-cat').forEach(btn => btn.addEventListener('click', () => {
+            const idx = parseInt(btn.dataset.index);
+            const catName = appData.categories[idx];
+            if (appData.links.some(l => l.category === catName)) { alert("该分类下还有网址，请先删除或转移网址"); return; }
+            if (confirm(`删除分类“${catName}”吗？`)) {
+                appData.categories.splice(idx, 1);
+                saveToLocalStorage();
+                renderFullPage();
+                renderCategoryManageUI();
+            }
+        }));
+    }
+
+    function addNewCategory() {
+        let newCat = prompt("新分类名称:");
+        if (newCat && newCat.trim() && !appData.categories.includes(newCat.trim())) {
+            appData.categories.push(newCat.trim());
+            saveToLocalStorage();
+            renderFullPage();
+            renderCategoryManageUI();
+        }
+    }
+
+    let isLoggedIn = false;
+    const AUTH_KEY = 'toolbox_admin_auth';
+
+    function checkAuth() {
+        const saved = localStorage.getItem(AUTH_KEY);
+        isLoggedIn = saved === 'true';
+        document.getElementById('authStatus').innerText = isLoggedIn ? '管理员已登录' : '未登录';
+        document.getElementById('loginBtn').innerText = isLoggedIn ? '退出' : '登录';
+        document.getElementById('fabGroup').style.display = isLoggedIn ? 'flex' : 'none';
+        renderFullPage();
+    }
+
+    function login(u, p) {
+        if (u === 'admin' && p === 'admin') {
+            localStorage.setItem(AUTH_KEY, 'true');
+            checkAuth();
+            return true;
+        }
+        return false;
+    }
+
+    function logout() {
+        localStorage.removeItem(AUTH_KEY);
+        checkAuth();
+    }
+
+    /* ================================================================
+       MD 导出 / 导入（整站数据）
+       ================================================================ */
+    function exportDataMd() {
+        const now = new Date();
+        const stamp = now.toISOString().slice(0, 10);
+        const pretty = now.toLocaleString('zh-CN');
+        const payload = {
+            app: 'Mr.Chang Web Toolbox',
+            version: 3,
+            exportedAt: now.toISOString(),
+            categoryCount: appData.categories.length,
+            linkCount: appData.links.length,
+            categories: appData.categories,
+            links: appData.links,
+            tombstones: appData.tombstones || {}
+        };
+        const json = JSON.stringify(payload, null, 2);
+        const md =
+`# Web 工具箱数据备份
+
+- 导出时间：${pretty}
+- 分类数量：${payload.categoryCount}
+- 网址数量：${payload.linkCount}
+
+> 这是 Web 工具箱的完整数据备份，包含全部分类与网址。
+> 在页面底部点击「数据更新」选择此文件即可完整恢复。
+
+\`\`\`json
+${json}
+\`\`\`
+`;
+        const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `Web工具箱数据_${stamp}.md`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(blob);
+    }
+
+    function parseMdData(text) {
+        const src = String(text || '');
+        const fence = src.match(/```(?:json)?\s*([\s\S]*?)```/i);
+        if (fence) {
+            try { return JSON.parse(fence[1].trim()); } catch (e) {}
+        }
+        try { return JSON.parse(src.trim()); } catch (e) {}
+        const s = src.indexOf('{');
+        const e = src.lastIndexOf('}');
+        if (s >= 0 && e > s) {
+            try { return JSON.parse(src.slice(s, e + 1)); } catch (err) {}
+        }
+        return null;
+    }
+
+    function importDataMd(file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            let data = null;
+            try {
+                data = parseMdData(e.target.result);
+            } catch (err) {
+                alert('解析失败：' + (err.message || '未知错误'));
+                return;
+            }
+            if (!data || !Array.isArray(data.categories) || !Array.isArray(data.links)) {
+                alert('无效的备份文件：未找到分类或网址数据');
+                return;
+            }
+            if (!confirm(`即将用备份中的 ${data.links.length} 条网址替换当前全部数据。\n当前本地尚未备份的内容会被覆盖。\n\n确定继续吗？`)) return;
+
+            appData.categories = data.categories.slice();
+            appData.links = data.links.slice();
+            appData.tombstones = (data.tombstones && typeof data.tombstones === 'object') ? data.tombstones : {};
+            saveToLocalStorage();
+            renderFullPage();
+            alert('数据更新完成');
+        };
+        reader.onerror = () => alert('文件读取失败');
+        reader.readAsText(file);
+    }
+
+    function initSearch() {
+        document.getElementById('baiduSearchForm').addEventListener('submit', e => {
+            e.preventDefault();
+            let q = document.getElementById('searchInput').value.trim();
+            if (q) window.open(`https://www.baidu.com/s?wd=${encodeURIComponent(q)}`, '_blank');
+        });
+        document.getElementById('searchInput').addEventListener('input', e => {
+            let term = e.target.value.toLowerCase();
+            document.querySelectorAll('.link-item').forEach(item => {
+                let name = item.querySelector('.link-name')?.innerText.toLowerCase() || '';
+                let desc = item.querySelector('.link-desc')?.innerText.toLowerCase() || '';
+                item.style.display = (name.includes(term) || desc.includes(term)) ? 'flex' : 'none';
+            });
+            document.querySelectorAll('.category').forEach(cat => {
+                let vis = Array.from(cat.querySelectorAll('.link-item')).some(li => li.style.display !== 'none');
+                cat.style.display = vis ? 'inline-block' : 'none';
+            });
+        });
+    }
+
+    function initAuthUI() {
+        document.getElementById('loginBtn').onclick = () => {
+            if (isLoggedIn) logout();
+            else document.getElementById('loginModal').classList.add('active');
+        };
+        document.getElementById('cancelLoginBtn').onclick = () =>
+            document.getElementById('loginModal').classList.remove('active');
+        document.getElementById('submitLoginBtn').onclick = () => {
+            let u = document.getElementById('loginUsername').value,
+                p = document.getElementById('loginPassword').value;
+            if (login(u, p)) {
+                document.getElementById('loginModal').classList.remove('active');
+                document.getElementById('loginUsername').value = '';
+                document.getElementById('loginPassword').value = '';
+                document.getElementById('loginError').innerText = '';
+            } else {
+                document.getElementById('loginError').innerText = '用户名或密码错误';
+            }
+        };
+    }
+
+    function initImportExport() {
+        document.getElementById('exportBtn').onclick = exportDataMd;
+        document.getElementById('importBtn').onclick = () => document.getElementById('importFileInput').click();
+        document.getElementById('importFileInput').onchange = e => {
+            if (e.target.files.length) importDataMd(e.target.files[0]);
+            e.target.value = '';
+        };
+    }
+
+    function initScrollEffects() {
+        window.onscroll = () => {
+            let hb = document.querySelector('.header').getBoundingClientRect().bottom + window.scrollY;
+            let fb = document.getElementById('fixedTagsBar');
+            if (window.scrollY > hb) fb.classList.add('show');
+            else fb.classList.remove('show');
+            document.getElementById('backToTop').classList.toggle('show', window.scrollY > 300);
+        };
+        document.getElementById('backToTop').onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function initAvatar() {
+        const wrap = document.getElementById('headerAvatar');
+        const img = document.getElementById('headerAvatarImg');
+        if (!wrap || !img) return;
+        const fallback = () => { wrap.classList.add('no-img'); if (img.parentNode) img.parentNode.removeChild(img); };
+        if (!navigator.onLine) { fallback(); return; }
+        img.addEventListener('load', () => wrap.classList.remove('no-img'));
+        img.addEventListener('error', fallback);
+        img.src = img.getAttribute('data-src');
+    }
+
+    function init() {
+        if (!loadFromLocalStorage()) {
+            initDefaultData();
+            cbLocalWasDefault = true;
+        }
+        initAvatar();
+        checkAuth();
+        initScrollEffects();
+        initSearch();
+        initAuthUI();
+        initImportExport();
+
+        document.getElementById('addLinkFab').onclick = () => openLinkModal(null);
+        document.getElementById('manageLinksFab').onclick = openManageLinksModal;
+        document.getElementById('manageCatFab').onclick = () => {
+            if (isLoggedIn) {
+                renderCategoryManageUI();
+                document.getElementById('manageModal').classList.add('active');
+            }
+        };
+        document.getElementById('cancelLinkModal').onclick = closeLinkModal;
+        document.getElementById('saveLinkBtn').onclick = saveLinkFromModal;
+        document.getElementById('closeManageLinksModal').onclick = closeManageLinksModal;
+        document.getElementById('closeManageModal').onclick = () =>
+            document.getElementById('manageModal').classList.remove('active');
+        document.getElementById('addCategoryBtn').onclick = addNewCategory;
+
+        document.getElementById('loginModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) document.getElementById('loginModal').classList.remove('active');
+        });
+        document.getElementById('linkModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) document.getElementById('linkModal').classList.remove('active');
+        });
+        document.getElementById('manageLinksModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) document.getElementById('manageLinksModal').classList.remove('active');
+        });
+        document.getElementById('manageModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) document.getElementById('manageModal').classList.remove('active');
+        });
+        document.getElementById('cloudCfgModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) document.getElementById('cloudCfgModal').classList.remove('active');
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
+            }
+        });
+
+        /* -------- 云同步初始化 -------- */
+        cbCfg = cbLoadCfg();
+        cbBindCloudUI();
+        if (cbHasCfg()) {
+            cbSetStatus('等待连接…', '');
+            cbInit().then(function (ok) { if (ok) cbSyncNow(); });
+        } else {
+            cbSetStatus('未配置 · 仅本地', '');
+        }
+
+        document.addEventListener('visibilitychange', function () {
+            if (!document.hidden && cbHasCfg() && cbReady) cbSyncNow();
+        });
+
+        console.log('✨ Web 工具箱已启动 · 本地 + 云同步');
+    }
+
+    init();
+</script>
+</body>
+</html>
