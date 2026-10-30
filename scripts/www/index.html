@@ -1,0 +1,3036 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#ffffff">
+    <title>Mr.Chang · Memo</title>
+    <script src="https://static.cloudbase.net/cloudbase-js-sdk/2.17.0/cloudbase.full.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        *::-webkit-scrollbar {
+            display: none;
+            width: 0;
+            height: 0;
+        }
+
+        :root {
+            --green-primary: #2ccc74;
+            --green-deep: #176d3e;
+            --green-light: #e8f8ef;
+            --green-bg: #f7fdf9;
+            --gray-text: #747c84;
+            --gray-light: #cfbe9a;
+            --border: #e8ece9;
+            --bg: #f4f6f5;
+            --panel: #ffffff;
+            --sidebar-bg: #ffffff;
+            --card-hover: #fafdfb;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            --radius: 12px;
+            --content-max: 780px;
+            --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: var(--font);
+            color: #1a1e1c;
+            background: var(--bg);
+            -webkit-font-smoothing: antialiased;
+            font-size: 15px;
+            line-height: 1.6;
+            overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #app {
+            display: flex;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+        }
+
+        /* ========== 遮罩层（移动端抽屉） ========== */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(18, 26, 22, 0.45);
+            display: none;
+            z-index: 1100;
+            opacity: 0;
+            transition: opacity 0.22s ease;
+            -webkit-backdrop-filter: blur(1px);
+            backdrop-filter: blur(1px);
+        }
+
+        .overlay.show {
+            display: block;
+            opacity: 1;
+        }
+
+        /* ========== 左侧边栏 ========== */
+        .sidebar {
+            width: 280px;
+            flex-shrink: 0;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            padding: 20px 16px 16px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 8px 20px;
+            user-select: none;
+            flex-shrink: 0;
+        }
+
+        .brand-logo {
+            width: 28px;
+            height: 28px;
+            background: var(--green-primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 16px;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-name {
+            font-size: 17px;
+            font-weight: 650;
+            color: var(--green-deep);
+            letter-spacing: -0.3px;
+        }
+
+        .brand-name span {
+            font-weight: 400;
+            color: var(--gray-text);
+            font-size: 13px;
+            margin-left: 4px;
+        }
+
+        /* ===== 记录日历 ===== */
+        .heatmap-section {
+            padding: 0 4px 6px;
+            flex-shrink: 0;
+        }
+
+        .cal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .cal-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #3a403d;
+        }
+
+        .cal-nav {
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            color: var(--gray-text);
+            font-size: 15px;
+            padding: 0 7px;
+            border-radius: 5px;
+            line-height: 1.4;
+            font-family: var(--font);
+        }
+
+        .cal-nav:hover { background: #eef6f1; color: var(--green-deep); }
+
+        .cal-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            margin-bottom: 3px;
+        }
+
+        .cal-weekdays span {
+            font-size: 10px;
+            color: var(--gray-light);
+            text-align: center;
+        }
+
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+        }
+
+        .cal-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            border-radius: 5px;
+            color: #5a625d;
+            cursor: default;
+            position: relative;
+            transition: transform 0.1s;
+            user-select: none;
+        }
+
+        .cal-day.other { color: #d5dbd7; }
+        .cal-day.today { box-shadow: inset 0 0 0 1.5px var(--green-primary); font-weight: 600; }
+        .cal-day.has-record { cursor: pointer; }
+        .cal-day.has-record:hover { transform: scale(1.12); }
+        .cal-day[data-level="1"] { background: #dcf6e7; color: var(--green-deep); }
+        .cal-day[data-level="2"] { background: #a9eac5; color: var(--green-deep); }
+        .cal-day[data-level="3"] { background: #5ed695; color: #fff; }
+        .cal-day[data-level="4"] { background: var(--green-primary); color: #fff; font-weight: 600; }
+        .cal-day.selected { outline: 2px solid var(--green-deep); outline-offset: -2px; }
+
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 14px 8px;
+            flex-shrink: 0;
+        }
+
+        .tag-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .tag-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13.5px;
+            color: #3a403d;
+            transition: background 0.15s;
+            user-select: none;
+            position: relative;
+        }
+
+        .tag-item:hover { background: #eef6f1; }
+        .tag-item.active { background: var(--green-light); color: var(--green-deep); font-weight: 550; }
+
+        .tag-item .tag-hash {
+            color: var(--gray-light);
+            font-weight: 400;
+            font-size: 13px;
+        }
+
+        .tag-item .tag-name {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .empty-tags {
+            font-size: 12px;
+            color: var(--gray-light);
+            padding: 8px 10px;
+        }
+
+        /* ===== 侧边栏底部工具：两个小图标按钮 ===== */
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 16px 4px 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-shrink: 0;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .icon-btn {
+            width: 32px;
+            height: 32px;
+            border: 1px solid var(--border);
+            background: #fff;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #7b837e;
+            transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.12s;
+            position: relative;
+        }
+
+        .icon-btn:hover { background: #f2f8f4; border-color: #d7e3db; color: var(--green-deep); }
+        .icon-btn:active { transform: scale(0.94); }
+
+        .icon-btn svg { width: 15px; height: 15px; }
+
+        .icon-btn .dot {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            display: none;
+        }
+
+        .icon-btn .dot.ok { display: block; background: var(--green-primary); box-shadow: 0 0 6px rgba(44, 204, 116, 0.6); }
+        .icon-btn .dot.sync { display: block; background: #e0b93a; box-shadow: 0 0 6px rgba(224, 185, 58, 0.7); animation: cloudPulse 1.1s infinite; }
+        .icon-btn .dot.err { display: block; background: #d9534f; box-shadow: 0 0 6px rgba(217, 83, 79, 0.7); }
+
+        #importInput { display: none; }
+
+        /* ========== 右侧主区域 ========== */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: var(--bg);
+            position: relative;
+            min-width: 0;
+        }
+
+        /* ===== 移动端顶部栏（桌面隐藏） ===== */
+        .mobile-topbar {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+            padding-top: calc(10px + env(safe-area-inset-top));
+        }
+
+        .menu-toggle {
+            width: 36px;
+            height: 36px;
+            border: 1px solid var(--border);
+            background: #fff;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #5a625d;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background 0.15s, color 0.15s, border-color 0.15s;
+        }
+
+        .menu-toggle:active { background: #eef6f1; color: var(--green-deep); border-color: #d7e3db; }
+
+        .mobile-title {
+            font-size: 15px;
+            font-weight: 650;
+            color: var(--green-deep);
+            letter-spacing: -0.2px;
+            white-space: nowrap;
+        }
+
+        .mobile-count {
+            margin-left: auto;
+            font-size: 11.5px;
+            color: var(--green-deep);
+            background: var(--green-light);
+            padding: 1px 9px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            line-height: 19px;
+        }
+
+        /* 输入区 */
+        .input-area {
+            padding: 16px 24px 16px;
+            flex-shrink: 0;
+            width: 100%;
+            max-width: var(--content-max);
+            margin: 0 auto;
+        }
+
+        .input-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 16px 10px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-shadow: var(--shadow);
+        }
+
+        .input-card:focus-within {
+            border-color: var(--green-primary);
+            box-shadow: 0 0 0 3px rgba(44, 204, 116, 0.08);
+        }
+
+        .memo-input {
+            width: 100%;
+            border: none;
+            outline: none;
+            font-family: var(--font);
+            font-size: 15px;
+            line-height: 1.65;
+            color: #1a1e1c;
+            background: transparent;
+            min-height: 48px;
+            max-height: 240px;
+            overflow-y: auto;
+            padding: 0;
+            word-break: break-word;
+            white-space: pre-wrap;
+        }
+
+        .memo-input:empty:before {
+            content: attr(data-placeholder);
+            color: #b8c0bb;
+            pointer-events: none;
+        }
+
+        .editable-image {
+            display: block;
+            max-width: 100%;
+            max-height: 240px;
+            border-radius: 8px;
+            margin: 4px 0;
+            border: 1px solid #eef2ef;
+        }
+
+        /* 工具栏：无分割横线 */
+        .input-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 6px;
+        }
+
+        .tool-btn {
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            padding: 5px 9px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: var(--gray-text);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background 0.15s, color 0.15s;
+            font-family: var(--font);
+        }
+
+        .tool-btn svg {
+            flex-shrink: 0;
+            display: block;
+        }
+
+        .tool-btn:hover { background: #f0f5f2; color: #2d3330; }
+
+        .tool-btn.send-btn {
+            background: var(--green-primary);
+            color: #fff;
+            margin-left: auto;
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            border-radius: 9px;
+            justify-content: center;
+            transition: background 0.15s, transform 0.12s, opacity 0.15s;
+        }
+        .tool-btn.send-btn svg { transform: translateX(-1px); }
+        .tool-btn.send-btn:hover { background: var(--green-deep); }
+        .tool-btn.send-btn:active { transform: scale(0.94); }
+        .tool-btn.send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+        .shortcut-hint {
+            font-size: 11px;
+            color: #c5ccc8;
+            margin-left: 4px;
+            display: none;
+        }
+
+        @media (min-width: 900px) {
+            .shortcut-hint { display: inline; }
+        }
+
+        #imageInput { display: none; }
+
+        /* 笔记流 */
+        .memo-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 4px 24px 60px;
+            scroll-behavior: smooth;
+            width: 100%;
+            max-width: var(--content-max);
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .main.tag-view .memo-list {
+            padding-top: 20px;
+        }
+
+        .memo-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px 16px 14px;
+            box-shadow: var(--shadow);
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        .memo-card:hover {
+            border-color: #d7e3db;
+            box-shadow: 0 2px 12px rgba(23, 109, 62, 0.06);
+        }
+
+        .memo-card.pinned {
+            border-color: #c9edd9;
+            background: #fdfffe;
+        }
+
+        .memo-card.editing {
+            border-color: var(--green-primary);
+            box-shadow: 0 0 0 3px rgba(44, 204, 116, 0.08);
+        }
+
+        .memo-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 4px;
+        }
+
+        .memo-time {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: #a8b0ab;
+            user-select: none;
+            font-weight: 450;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .memo-pin-badge {
+            font-size: 11px;
+            color: var(--green-primary);
+            flex-shrink: 0;
+        }
+
+        .memo-more {
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            color: #c2c9c4;
+            font-size: 17px;
+            line-height: 1;
+            padding: 2px 7px 5px;
+            border-radius: 6px;
+            letter-spacing: 1px;
+            font-family: var(--font);
+            transition: background 0.15s, color 0.15s;
+            flex-shrink: 0;
+        }
+
+        .memo-more:hover { background: #eef6f1; color: var(--green-deep); }
+
+        .memo-body {
+            font-size: 15px;
+            line-height: 1.7;
+            color: #1a1e1c;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .memo-body .tag-inline {
+            color: var(--green-deep);
+            background: var(--green-light);
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.15s;
+            display: inline-block;
+            margin: 1px 1px;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .memo-body .tag-inline:hover { background: #d4f2e2; }
+
+        .memo-image {
+            display: block;
+            max-width: 100%;
+            max-height: 420px;
+            border-radius: 10px;
+            margin: 6px 0;
+            border: 1px solid #eef2ef;
+            cursor: zoom-in;
+            transition: opacity 0.15s;
+        }
+
+        .memo-image:hover { opacity: 0.92; }
+
+        /* ===== 内联编辑卡片 ===== */
+        .inline-editor-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .inline-editor-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--green-deep);
+            user-select: none;
+        }
+
+        .inline-editor-toolbar .spacer { flex: 1; }
+
+        .inline-btn {
+            border: 1px solid var(--border);
+            background: #fff;
+            border-radius: 7px;
+            padding: 4px 14px;
+            font-size: 12.5px;
+            cursor: pointer;
+            font-family: var(--font);
+            color: #3a403d;
+            transition: background 0.15s, border-color 0.15s;
+        }
+
+        .inline-btn:hover { background: #f4f8f6; border-color: #d7e3db; }
+
+        .inline-btn.primary {
+            background: var(--green-primary);
+            border-color: var(--green-primary);
+            color: #fff;
+            font-weight: 550;
+        }
+
+        .inline-btn.primary:hover { background: var(--green-deep); border-color: var(--green-deep); }
+
+        .inline-editor {
+            width: 100%;
+            outline: none;
+            font-size: 15px;
+            line-height: 1.7;
+            color: #1a1e1c;
+            font-family: var(--font);
+            word-break: break-word;
+            white-space: pre-wrap;
+            min-height: 72px;
+            max-height: 480px;
+            overflow-y: auto;
+        }
+
+        .inline-editor:empty:before {
+            content: attr(data-placeholder);
+            color: #b8c0bb;
+            pointer-events: none;
+        }
+
+        .inline-editor .editable-image {
+            max-height: 420px;
+            margin: 8px 0;
+            cursor: default;
+        }
+
+        /* 内联编辑底部：无分割横线 */
+        .inline-editor-footer {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 6px;
+        }
+
+        .inline-char-count {
+            margin-left: auto;
+            font-size: 11.5px;
+            color: #a3aba6;
+            user-select: none;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--gray-light);
+            user-select: none;
+        }
+
+        .empty-state .empty-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.6; }
+        .empty-state p { font-size: 14px; line-height: 1.8; }
+
+        /* 图片灯箱 */
+        .lightbox {
+            position: fixed;
+            inset: 0;
+            background: rgba(12, 20, 16, 0.86);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1500;
+            cursor: zoom-out;
+            padding: 32px;
+            backdrop-filter: blur(4px);
+        }
+
+        .lightbox.show { display: flex; animation: fadeIn 0.18s ease; }
+
+        .lightbox img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 10px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        /* 锚定在 ··· 按钮旁的浮层 */
+        .memo-popover {
+            position: fixed;
+            z-index: 950;
+            display: none;
+            flex-direction: column;
+            width: 168px;
+            padding: 5px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(18, 32, 24, 0.16), 0 0 0 1px rgba(0, 0, 0, 0.05);
+            transform-origin: top right;
+        }
+
+        .memo-popover.show {
+            display: flex;
+            animation: popIn 0.13s ease;
+        }
+
+        .pop-row {
+            width: 100%;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            padding: 8px 10px;
+            border-radius: 7px;
+            font-size: 13px;
+            font-family: var(--font);
+            color: #3a403d;
+            text-align: left;
+            transition: background 0.12s, color 0.12s;
+            white-space: nowrap;
+        }
+
+        .pop-row:hover { background: #f2f8f4; color: var(--green-deep); }
+        .pop-row.danger { color: #d9534f; }
+        .pop-row.danger:hover { background: #fdf0ef; color: #c9433f; }
+
+        .pop-sep {
+            height: 1px;
+            background: #f0f3f1;
+            margin: 4px 8px;
+        }
+
+        .pop-stat {
+            padding: 3px 10px;
+            font-size: 11.5px;
+            color: #a3aba6;
+            user-select: none;
+            white-space: nowrap;
+            line-height: 1.5;
+        }
+
+        .pop-stat:last-child { padding-bottom: 6px; }
+
+        /* ===== 通用模态框 ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(18, 26, 22, 0.42);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1400;
+            padding: 20px;
+            backdrop-filter: blur(2px);
+        }
+
+        .modal-overlay.show { display: flex; animation: fadeIn 0.16s ease; }
+
+        .modal {
+            width: 100%;
+            max-width: 420px;
+            max-height: 86vh;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .modal-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 18px 12px;
+            border-bottom: 1px solid #f2f5f3;
+            flex-shrink: 0;
+        }
+
+        .modal-title {
+            font-size: 14.5px;
+            font-weight: 650;
+            color: #2d3330;
+        }
+
+        .modal-close {
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--gray-text);
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            font-family: var(--font);
+            transition: background 0.15s;
+        }
+
+        .modal-close:hover { background: #f0f3f1; }
+
+        .modal-body {
+            padding: 16px 18px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 8px;
+            padding: 12px 18px 16px;
+            border-top: 1px solid #f2f5f3;
+            flex-shrink: 0;
+            padding-bottom: calc(16px + env(safe-area-inset-bottom));
+        }
+
+        .modal-btn {
+            flex: 1;
+            border: 1px solid var(--border);
+            background: #fff;
+            border-radius: 8px;
+            padding: 9px 0;
+            font-size: 13px;
+            font-family: var(--font);
+            color: #3a403d;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s, color 0.15s;
+            white-space: nowrap;
+        }
+
+        .modal-btn:hover { background: #f4f8f6; border-color: #d7e3db; }
+
+        .modal-btn.primary {
+            background: var(--green-primary);
+            border-color: var(--green-primary);
+            color: #fff;
+            font-weight: 550;
+        }
+
+        .modal-btn.primary:hover { background: var(--green-deep); border-color: var(--green-deep); }
+
+        /* 表单 */
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group:last-child { margin-bottom: 4px; }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #5a625d;
+            margin-bottom: 6px;
+            letter-spacing: 0.2px;
+        }
+
+        .form-input {
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 13.5px;
+            font-family: var(--font);
+            color: #1a1e1c;
+            background: #fff;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        .form-input:focus {
+            border-color: var(--green-primary);
+            box-shadow: 0 0 0 3px rgba(44, 204, 116, 0.1);
+        }
+
+        .form-input::placeholder { color: #c2c9c4; }
+
+        .form-hint {
+            font-size: 11.5px;
+            color: #a8b0ab;
+            line-height: 1.6;
+            padding: 10px 12px;
+            background: var(--green-bg);
+            border: 1px solid #e2f2e8;
+            border-radius: 8px;
+            margin-top: 4px;
+        }
+
+        /* 云同步状态行 */
+        .cloud-status-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12.5px;
+            color: #5a625d;
+            margin-bottom: 14px;
+            padding: 8px 12px;
+            background: #f7faf8;
+            border: 1px solid #eef3f0;
+            border-radius: 8px;
+            line-height: 1.4;
+        }
+
+        .cloud-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #c2c9c4;
+            flex-shrink: 0;
+            transition: 0.3s;
+        }
+
+        .cloud-dot.ok { background: var(--green-primary); box-shadow: 0 0 0 3px rgba(44, 204, 116, 0.18); }
+        .cloud-dot.sync { background: #e0b93a; box-shadow: 0 0 0 3px rgba(224, 185, 58, 0.2); animation: cloudPulse 1.1s infinite; }
+        .cloud-dot.err { background: #d9534f; box-shadow: 0 0 0 3px rgba(217, 83, 79, 0.18); }
+
+        .cloud-guide { background: #f6f8f7; border-color: #edf1ee; color: #7d867f; }
+
+        .guide-title {
+            font-size: 10.5px;
+            color: #a3aba6;
+            letter-spacing: 0.6px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .cloud-guide ol {
+            margin: 0;
+            padding-left: 16px;
+        }
+
+        .cloud-guide li { margin-bottom: 3px; }
+
+        .cloud-guide code {
+            color: var(--green-deep);
+            background: rgba(44, 204, 116, 0.12);
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-family: ui-monospace, monospace;
+            font-size: 10.5px;
+        }
+
+        /* 导入导出面板 */
+        .data-action {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: #fff;
+            cursor: pointer;
+            font-family: var(--font);
+            text-align: left;
+            transition: background 0.15s, border-color 0.15s;
+        }
+
+        .data-action:last-child { margin-bottom: 0; }
+
+        .data-action:hover { background: #f7fbf9; border-color: #d7e3db; }
+
+        .data-action-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            background: var(--green-bg);
+            color: var(--green-deep);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .data-action-text {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .data-action-title {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #2d3330;
+            margin-bottom: 1px;
+        }
+
+        .data-action-desc {
+            font-size: 11.5px;
+            color: #a0a8a3;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .data-action .arrow {
+            color: #c8d0cb;
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 42px;
+            transform: translateX(-50%) translateY(12px);
+            background: #2d3330;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 13px;
+            opacity: 0;
+            transition: opacity 0.25s, transform 0.25s;
+            z-index: 2000;
+            pointer-events: none;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+            max-width: calc(100vw - 48px);
+            text-align: center;
+        }
+
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* ===== 平板 / 手机（≤ 820px）：抽屉式侧边栏 ===== */
+        @media (max-width: 820px) {
+            .overlay.show { display: block; }
+
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                width: 282px;
+                min-width: 282px;
+                max-width: 84vw;
+                transform: translateX(-100%);
+                transition: transform 0.26s cubic-bezier(0.4, 0, 0.2, 1);
+                z-index: 1200;
+                box-shadow: 8px 0 32px rgba(12, 20, 16, 0.22);
+                border-right: 1px solid var(--border);
+                padding: 22px 16px 16px;
+                padding-top: calc(22px + env(safe-area-inset-top));
+                border-radius: 0 16px 16px 0;
+            }
+
+            .sidebar.open { transform: translateX(0); }
+
+            .sidebar-footer {
+                flex-direction: row;
+                gap: 12px;
+                padding-top: 14px;
+            }
+
+            .brand { padding-bottom: 16px; }
+
+            body.sidebar-open { overflow: hidden; }
+
+            .mobile-topbar { display: flex; }
+
+            .main { padding: 0; }
+
+            .input-area {
+                padding: 10px 14px 12px;
+            }
+
+            .input-card {
+                padding: 12px 13px 9px;
+            }
+
+            /* 16px 防止 iOS 聚焦自动放大 */
+            .memo-input { font-size: 16px; }
+            .inline-editor { font-size: 16px; }
+
+            .memo-list {
+                padding: 2px 14px calc(48px + env(safe-area-inset-bottom));
+                gap: 10px;
+            }
+
+            .main.tag-view .memo-list { padding-top: 14px; }
+
+            .memo-card {
+                padding: 11px 13px 13px;
+                border-radius: 11px;
+            }
+
+            .memo-body { font-size: 14.5px; line-height: 1.68; }
+
+            .memo-more { padding: 4px 9px 7px; }
+
+            .tool-btn { padding: 7px 9px; }
+            .tool-btn.send-btn { width: 34px; height: 34px; }
+
+            .inline-btn { padding: 6px 15px; }
+
+            /* 弹窗改为底部弹出 */
+            .modal-overlay {
+                align-items: flex-end;
+                padding: 0;
+            }
+
+            .modal {
+                max-width: 100%;
+                max-height: 88vh;
+                border-radius: 16px 16px 0 0;
+                animation: sheetUp 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .modal-head { padding: 16px 18px 12px; }
+
+            .modal-title { font-size: 15px; }
+
+            .modal-body { padding: 16px 18px; }
+
+            .modal-footer { padding: 12px 18px calc(16px + env(safe-area-inset-bottom)); }
+
+            .form-input { font-size: 16px; padding: 10px 12px; }
+
+            .toast { bottom: calc(28px + env(safe-area-inset-bottom)); }
+
+            .memo-popover { width: 172px; }
+
+            .pop-row { padding: 10px 12px; font-size: 13.5px; }
+        }
+
+        /* ===== 小屏手机（≤ 480px） ===== */
+        @media (max-width: 480px) {
+            .mobile-topbar { padding: 8px 12px; padding-top: calc(8px + env(safe-area-inset-top)); }
+
+            .menu-toggle { width: 34px; height: 34px; }
+
+            .input-area { padding: 8px 12px 10px; }
+
+            .memo-list { padding: 2px 12px calc(40px + env(safe-area-inset-bottom)); }
+
+            .memo-body { font-size: 14px; }
+
+            .memo-head { margin-bottom: 3px; }
+
+            .memo-time { font-size: 11.5px; }
+
+            .memo-card { padding: 10px 12px 12px; }
+
+            .inline-editor-toolbar { gap: 6px; }
+
+            .inline-btn { padding: 5px 12px; font-size: 12px; }
+
+            .modal-body { padding: 14px 16px; }
+
+            .modal-footer { padding: 10px 16px calc(14px + env(safe-area-inset-bottom)); }
+
+            .modal-btn { padding: 10px 0; font-size: 13px; }
+
+            .toast { font-size: 12.5px; padding: 9px 16px; }
+        }
+
+        /* ===== 手机横屏 ===== */
+        @media (max-width: 820px) and (orientation: landscape) {
+            .mobile-topbar { padding-top: calc(6px + env(safe-area-inset-top)); padding-bottom: 6px; }
+
+            .input-area { padding: 6px 12px 8px; }
+
+            .memo-input { min-height: 40px; max-height: 120px; }
+
+            .modal { max-height: 92vh; }
+        }
+
+        /* 动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.94); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes sheetUp {
+            from { opacity: 0.6; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes cloudPulse {
+            50% { opacity: 0.35; }
+        }
+
+        .memo-card.new { animation: fadeIn 0.3s ease; }
+    </style>
+</head>
+<body>
+<div id="app">
+    <!-- 移动端抽屉遮罩 -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- 左侧边栏 -->
+    <aside class="sidebar" id="sidebar">
+        <div class="brand">
+            <div class="brand-logo">M</div>
+            <div class="brand-name">Mr.Chang <span>Memo</span></div>
+        </div>
+
+        <!-- 记录日历 -->
+        <div class="heatmap-section">
+            <div class="cal-header">
+                <button class="cal-nav" onclick="changeMonth(-1)" title="上个月">‹</button>
+                <span class="cal-title" id="calTitle"></span>
+                <button class="cal-nav" onclick="changeMonth(1)" title="下个月">›</button>
+            </div>
+            <div class="cal-weekdays">
+                <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+            </div>
+            <div class="cal-grid" id="calGrid"></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- 标题列表 -->
+        <div class="tag-list" id="tagList">
+            <div class="empty-tags">暂无标题，在笔记中输入 #标题</div>
+        </div>
+
+        <!-- 底部工具：两个小图标按钮 -->
+        <div class="sidebar-footer">
+            <button class="icon-btn" id="cloudSyncBtn" onclick="openCloudModal()" title="腾讯云同步设置" aria-label="腾讯云同步">
+                <svg id="cloudSyncIcon" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M17.5 19a4.5 4.5 0 0 0 .5-8.97A6 6 0 0 0 6.1 9.4 4.5 4.5 0 0 0 7 19h10.5z"/>
+                </svg>
+                <span class="dot" id="cloudDot"></span>
+            </button>
+            <button class="icon-btn" onclick="openDataModal()" title="数据导入导出" aria-label="数据导入导出">
+                <svg viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <ellipse cx="12" cy="5" rx="8" ry="3"/>
+                    <path d="M4 5v7c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/>
+                    <path d="M4 12v7c0 1.66 3.58 3 8 3s8-1.34 8-3v-7"/>
+                </svg>
+            </button>
+        </div>
+        <input type="file" id="importInput" accept="application/json,.json" onchange="handleImport(event)">
+    </aside>
+
+    <!-- 右侧主区域 -->
+    <main class="main" id="mainArea">
+        <!-- 移动端顶部栏 -->
+        <div class="mobile-topbar">
+            <button class="menu-toggle" id="menuToggle" aria-label="打开侧边栏" title="菜单">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                    <path d="M4 7h16"/>
+                    <path d="M4 12h16"/>
+                    <path d="M4 17h10"/>
+                </svg>
+            </button>
+            <span class="mobile-title">Mr.Chang</span>
+            <span class="mobile-count" id="mobileCount">0</span>
+        </div>
+
+        <!-- 输入区 -->
+        <div class="input-area" id="inputArea">
+            <div class="input-card" id="inputCard">
+                <div class="memo-input" id="memoEditor" contenteditable="true"
+                     data-placeholder="现在的想法是...（# 开头标注标题，不带标题的内容会显示在下方）"
+                     oninput="onEditorInput(this); updateSendBtn()"
+                     onkeydown="handleInputKeydown(event)"></div>
+                <div class="input-toolbar">
+                    <button class="tool-btn" onclick="insertTextAtCursor(document.getElementById('memoEditor'), '#')" title="插入标题标签">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M9 4L7 20"/>
+                            <path d="M17 4l-2 16"/>
+                            <path d="M4 9h16"/>
+                            <path d="M3 15h16"/>
+                        </svg>
+                        <span>标题</span>
+                    </button>
+                    <button class="tool-btn" onclick="openImagePicker('memoEditor')" title="插入图片">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="3" y="3" width="18" height="18" rx="2.5"/>
+                            <circle cx="8.5" cy="8.5" r="1.3"/>
+                            <path d="M21 15.5l-4.6-4.6L6.2 21"/>
+                        </svg>
+                        <span>图片</span>
+                    </button>
+                    <span class="shortcut-hint">⌘/Ctrl + Enter 发送</span>
+                    <button class="tool-btn send-btn" id="sendBtn" onclick="sendMemo()" disabled
+                            title="发送（⌘/Ctrl + Enter）" aria-label="发送">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M22 2L11 13"/>
+                            <path d="M22 2l-7 20-4-9-9-4 20-7z"/>
+                        </svg>
+                    </button>
+                </div>
+                <input type="file" id="imageInput" accept="image/*" multiple onchange="handleImageUpload(event)">
+            </div>
+        </div>
+
+        <!-- 笔记流 -->
+        <div class="memo-list" id="memoList">
+            <div class="empty-state" id="emptyState">
+                <div class="empty-icon">🌱</div>
+                <p>还没有笔记<br>在上方输入框记录第一个想法吧</p>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- 锚定在 ··· 按钮旁的浮层 -->
+<div class="memo-popover" id="memoPopover">
+    <button class="pop-row" onclick="startEdit()">编辑</button>
+    <button class="pop-row" onclick="copyCurrentMemo()">复制</button>
+    <button class="pop-row" id="pinActionLabel" onclick="togglePinCurrent()">置顶</button>
+    <button class="pop-row danger" onclick="deleteCurrentMemo()">删除</button>
+    <div class="pop-sep"></div>
+    <div class="pop-stat" id="popCharCount"></div>
+    <div class="pop-stat" id="popUpdated"></div>
+</div>
+
+<!-- ===== 腾讯云同步设置弹窗（CloudBase） ===== -->
+<div class="modal-overlay" id="cloudModal" onclick="handleCloudOverlayClick(event)">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="cloudModalTitle">
+        <div class="modal-head">
+            <span class="modal-title" id="cloudModalTitle">腾讯云同步设置</span>
+            <button class="modal-close" onclick="closeCloudModal()" title="关闭">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="cloud-status-row">
+                <span class="cloud-dot" id="modalCloudDot"></span>
+                <span id="modalCloudStatus">未配置 · 仅本地</span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="cbEnvId">环境 ID</label>
+                <input type="text" class="form-input" id="cbEnvId" placeholder="例如：memo-3g9xxxxxxx"
+                       autocomplete="off" spellcheck="false">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="cbAccessKey">Publishable Key</label>
+                <input type="password" class="form-input" id="cbAccessKey" placeholder="粘贴控制台生成的 Publishable Key"
+                       autocomplete="off" spellcheck="false">
+            </div>
+
+            <div class="form-hint cloud-guide">
+                <div class="guide-title">首次使用请完成以下配置</div>
+                <ol>
+                    <li>在 CloudBase 控制台创建个人版环境（免费）</li>
+                    <li>「身份认证 → 登录方式」开启 <code>匿名登录</code></li>
+                    <li>「环境配置 → API Key 配置」生成 <code>Publishable Key</code></li>
+                    <li>「数据库」新建集合 <code>mc_memo_v1</code></li>
+                    <li>集合权限设为 <code>{"read": true, "write": true}</code></li>
+                    <li>将环境 ID 与 Publishable Key 填入上方，保存即可</li>
+                </ol>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn" onclick="closeCloudModal()">取消</button>
+            <button class="modal-btn" onclick="syncNowManual()">立即同步</button>
+            <button class="modal-btn primary" onclick="saveCloudConfigAndSync()">保存并同步</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 数据导入导出弹窗 ===== -->
+<div class="modal-overlay" id="dataModal" onclick="handleDataOverlayClick(event)">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="dataModalTitle">
+        <div class="modal-head">
+            <span class="modal-title" id="dataModalTitle">数据导入导出</span>
+            <button class="modal-close" onclick="closeDataModal()" title="关闭">✕</button>
+        </div>
+        <div class="modal-body">
+            <button class="data-action" onclick="exportJson()">
+                <span class="data-action-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M12 3v12"/>
+                        <path d="M7 10l5 5 5-5"/>
+                        <path d="M4 20h16"/>
+                    </svg>
+                </span>
+                <span class="data-action-text">
+                    <span class="data-action-title">导出 JSON</span>
+                    <span class="data-action-desc">把全部笔记保存为 JSON 备份文件</span>
+                </span>
+                <span class="arrow">›</span>
+            </button>
+
+            <button class="data-action" onclick="triggerImport()">
+                <span class="data-action-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M12 15V3"/>
+                        <path d="M7 8l5-5 5 5"/>
+                        <path d="M4 20h16"/>
+                    </svg>
+                </span>
+                <span class="data-action-text">
+                    <span class="data-action-title">导入 JSON</span>
+                    <span class="data-action-desc">从 JSON 备份文件合并笔记数据</span>
+                </span>
+                <span class="arrow">›</span>
+            </button>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn" onclick="closeDataModal()">关闭</button>
+        </div>
+    </div>
+</div>
+
+<!-- 图片灯箱 -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+    <img id="lightboxImg" src="" alt="预览">
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+    // ==================== 存储键 ====================
+    const STORAGE_KEY = 'flomo_clone_data_v1';
+    const TOMBSTONE_KEY = 'flomo_clone_tombstones_v1';
+    const CB_CFG_KEY = 'flomo_clone_cloud_cfg_v1';
+    const CB_COLLECTION = 'mc_memo_v1';
+
+    // ==================== 状态 ====================
+    let state = {
+        memos: [],
+        currentView: 'all',     // 'all' | 'tag' | 'date'
+        currentTag: null,
+        currentDate: null,
+        calendarMonth: { year: new Date().getFullYear(), month: new Date().getMonth() },
+        editingMemoId: null
+    };
+
+    let popoverState = { memoId: null };
+    let imageTarget = 'memoEditor';
+    let inlineEditOriginal = null;
+    let focusInlinePending = false;
+
+    // 云同步状态
+    let tombstones = {};
+    let cbCfg = { envId: '', accessKey: '' };
+    let cbApp = null;
+    let cbDb = null;
+    let cbReady = false;
+    let cbSyncing = false;
+    let cbTimer = null;
+    let cbInternalSave = false;
+
+    // ==================== 本地数据 ====================
+    function loadData() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed.memos)) state.memos = parsed.memos;
+            }
+        } catch (e) {
+            console.warn('数据加载失败', e);
+        }
+        state.memos.forEach(m => {
+            if (!Array.isArray(m.tags)) m.tags = [];
+            if (m.tags.length > 1) m.tags = [m.tags[0]];
+        });
+    }
+
+    function saveData(skipCloud) {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({ memos: state.memos }));
+        } catch (e) {
+            console.warn('数据保存失败', e);
+            return false;
+        }
+        if (!skipCloud && !cbInternalSave) cloudScheduleSync();
+        return true;
+    }
+
+    function loadTombstones() {
+        try {
+            const raw = localStorage.getItem(TOMBSTONE_KEY);
+            if (raw) {
+                const o = JSON.parse(raw);
+                if (o && typeof o === 'object' && !Array.isArray(o)) return o;
+            }
+        } catch (e) { /* ignore */ }
+        return {};
+    }
+
+    function saveTombstones() {
+        try {
+            localStorage.setItem(TOMBSTONE_KEY, JSON.stringify(tombstones));
+        } catch (e) { /* ignore */ }
+    }
+
+    // ==================== 工具函数 ====================
+    function pad2(n) {
+        return String(n).padStart(2, '0');
+    }
+
+    function generateId() {
+        return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    }
+
+    function formatTime(iso) {
+        const d = new Date(iso);
+        const now = new Date();
+        const diff = now - d;
+        const day = 24 * 60 * 60 * 1000;
+        if (diff < 60 * 1000) return '刚刚';
+        if (diff < 60 * 60 * 1000) return Math.floor(diff / 60000) + ' 分钟前';
+        if (diff < day && d.getDate() === now.getDate()) {
+            return d.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+        }
+        if (diff < 2 * day && d.getDate() === now.getDate() - 1) {
+            return '昨天 ' + d.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+        }
+        if (d.getFullYear() === now.getFullYear()) {
+            return d.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' }) + ' ' +
+                d.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+        }
+        return d.toLocaleDateString('zh-CN', { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+
+    function formatDateShort(iso) {
+        const d = new Date(iso);
+        return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+    }
+
+    function formatDateKey(date) {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    function escapeAttr(str) {
+        return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+
+    function extractTags(content) {
+        const regex = /#([^\s#]+)/g;
+        const match = regex.exec(content);
+        if (!match) return [];
+        const tag = match[1].replace(/[，。！？、；：""''（）【】《》\.,!?;:()\[\]{}]/g, '');
+        return tag ? [tag] : [];
+    }
+
+    function hasTitle(memo) {
+        return !!(memo.tags && memo.tags.length > 0);
+    }
+
+    function plainText(content) {
+        return content.replace(/!\[[^\]]*\]\(data:image\/[^)\s]+\)/g, '');
+    }
+
+    function countChars(content) {
+        return plainText(content).replace(/\s/g, '').length;
+    }
+
+    function countEditorChars(el) {
+        if (!el) return 0;
+        let count = 0;
+        function walk(node) {
+            for (const child of node.childNodes) {
+                if (child.nodeType === 3) {
+                    count += child.textContent.replace(/\s/g, '').length;
+                } else if (child.nodeType === 1 && child.tagName !== 'IMG') {
+                    walk(child);
+                }
+            }
+        }
+        walk(el);
+        return count;
+    }
+
+    function mdToHtml(md) {
+        if (!md) return '';
+        const images = [];
+        let text = md.replace(/!\[([^\]]*)\]\((data:image\/[^)\s]+)\)/g, (m, alt, url) => {
+            const i = images.length;
+            images.push({ src: url, alt: alt });
+            return `\uE000IMG${i}\uE001`;
+        });
+        text = escapeHtml(text).replace(/\n/g, '<br>');
+        text = text.replace(/\uE000IMG(\d+)\uE001/g, (m, i) => {
+            const img = images[Number(i)];
+            const alt = escapeHtml(img.alt || '');
+            return `<img src="${img.src}" alt="${alt}" class="editable-image">`;
+        });
+        return text;
+    }
+
+    function htmlToMd(el) {
+        if (!el) return '';
+        let result = '';
+        function walk(node) {
+            for (const child of node.childNodes) {
+                if (child.nodeType === 3) {
+                    result += child.textContent;
+                } else if (child.nodeType === 1) {
+                    const tag = child.tagName;
+                    if (tag === 'IMG') {
+                        result += `![](${child.getAttribute('src') || ''})`;
+                    } else if (tag === 'BR') {
+                        result += '\n';
+                    } else if (tag === 'DIV' || tag === 'P' || tag === 'LI') {
+                        if (result && !result.endsWith('\n')) result += '\n';
+                        walk(child);
+                        if (!result.endsWith('\n')) result += '\n';
+                    } else {
+                        walk(child);
+                    }
+                }
+            }
+        }
+        walk(el);
+        return result.replace(/\n{3,}/g, '\n\n').replace(/^\n+/, '').replace(/\n+$/, '');
+    }
+
+    function renderContentWithTags(content) {
+        const images = [];
+        let text = content.replace(/!\[([^\]]*)\]\((data:image\/[^)\s]+)\)/g, (m, alt, url) => {
+            const i = images.length;
+            const safeAlt = escapeHtml(alt || '图片').replace(/"/g, '&quot;');
+            images.push(`<img class="memo-image" src="${url}" alt="${safeAlt}" onclick="openImage(this.src)">`);
+            return `\uE000IMG${i}\uE001`;
+        });
+        text = escapeHtml(text);
+        let firstDone = false;
+        text = text.replace(/#([^\s#<\uE000]+)/g, (match, tag) => {
+            const cleanTag = tag.replace(/[，。！？、；：""''（）【】《》\.,!?;:()\[\]{}]/g, '');
+            if (!cleanTag) return match;
+            if (firstDone) return match;
+            firstDone = true;
+            return `<span class="tag-inline" onclick="event.stopPropagation();filterByTag('${escapeAttr(cleanTag)}')">#${cleanTag}</span>`;
+        });
+        text = text.replace(/\uE000IMG(\d+)\uE001/g, (m, i) => images[Number(i)] || '');
+        return text;
+    }
+
+    function getDayCountMap() {
+        const map = {};
+        state.memos.forEach(m => {
+            const key = formatDateKey(new Date(m.createdAt));
+            map[key] = (map[key] || 0) + 1;
+        });
+        return map;
+    }
+
+    function getTagStats() {
+        const map = new Map();
+        state.memos.forEach(memo => {
+            (memo.tags || []).forEach(tag => {
+                map.set(tag, (map.get(tag) || 0) + 1);
+            });
+        });
+        return Array.from(map.entries())
+            .map(([name, count]) => ({ name, count }))
+            .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+    }
+
+    function sortMemos(memos) {
+        return memos.sort((a, b) => {
+            if (!!b.pinned !== !!a.pinned) return b.pinned ? 1 : -1;
+            return new Date(b.createdAt) - new Date(a.createdAt);
+        });
+    }
+
+    function getFilteredMemos() {
+        let memos = [...state.memos];
+
+        if (state.currentView === 'tag' && state.currentTag) {
+            memos = memos.filter(m => (m.tags || []).includes(state.currentTag));
+        } else if (state.currentView === 'date' && state.currentDate) {
+            memos = memos.filter(m => formatDateKey(new Date(m.createdAt)) === state.currentDate);
+        } else {
+            memos = memos.filter(m => !hasTitle(m));
+        }
+
+        return sortMemos(memos);
+    }
+
+    // ==================== 渲染层 ====================
+    function calLevel(count) {
+        if (count >= 10) return 4;
+        if (count >= 6) return 3;
+        if (count >= 3) return 2;
+        if (count >= 1) return 1;
+        return 0;
+    }
+
+    function renderCalendar() {
+        const grid = document.getElementById('calGrid');
+        const title = document.getElementById('calTitle');
+        if (!grid) return;
+
+        const { year, month } = state.calendarMonth;
+        const first = new Date(year, month, 1);
+        const startWeekday = (first.getDay() + 6) % 7;
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const prevMonthDays = new Date(year, month, 0).getDate();
+        const todayKey = formatDateKey(new Date());
+        const countMap = getDayCountMap();
+
+        if (title) title.textContent = `${year}年${month + 1}月`;
+
+        const cells = [];
+        for (let i = startWeekday - 1; i >= 0; i--) {
+            const d = prevMonthDays - i;
+            const date = new Date(year, month - 1, d);
+            const key = formatDateKey(date);
+            cells.push({ day: d, key, other: true, count: countMap[key] || 0, today: key === todayKey });
+        }
+        for (let d = 1; d <= daysInMonth; d++) {
+            const date = new Date(year, month, d);
+            const key = formatDateKey(date);
+            cells.push({ day: d, key, other: false, count: countMap[key] || 0, today: key === todayKey });
+        }
+        let nextDay = 1;
+        while (cells.length % 7 !== 0) {
+            const date = new Date(year, month + 1, nextDay++);
+            const key = formatDateKey(date);
+            cells.push({ day: date.getDate(), key, other: true, count: countMap[key] || 0, today: key === todayKey });
+        }
+
+        grid.innerHTML = cells.map(c => {
+            const cls = ['cal-day'];
+            if (c.other) cls.push('other');
+            if (c.today) cls.push('today');
+            if (c.count > 0) cls.push('has-record');
+            if (!c.other && state.currentView === 'date' && state.currentDate === c.key) cls.push('selected');
+            const clickAttr = (!c.other && c.count > 0) ? ` onclick="filterByDate('${c.key}')"` : '';
+            return `<div class="${cls.join(' ')}" data-level="${calLevel(c.count)}" title="${c.key} · ${c.count} 条"${clickAttr}>${c.day}</div>`;
+        }).join('');
+    }
+
+    function renderTags() {
+        const container = document.getElementById('tagList');
+        if (!container) return;
+        const stats = getTagStats();
+        if (stats.length === 0) {
+            container.innerHTML = '<div class="empty-tags">暂无标题，在笔记中输入 #标题</div>';
+            return;
+        }
+        container.innerHTML = stats.map(t => {
+            const isActive = state.currentView === 'tag' && state.currentTag === t.name;
+            return `
+                <div class="tag-item ${isActive ? 'active' : ''}" onclick="filterByTag('${escapeAttr(t.name)}')">
+                    <span class="tag-hash">#</span>
+                    <span class="tag-name">${escapeHtml(t.name)}</span>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function renderViewCard(m) {
+        return `
+            <div class="memo-card ${m.pinned ? 'pinned' : ''}" data-id="${m.id}">
+                <div class="memo-head">
+                    <span class="memo-time">
+                        ${m.pinned ? '<span class="memo-pin-badge">📌</span>' : ''}
+                        ${formatTime(m.createdAt)}
+                    </span>
+                    <button class="memo-more" title="更多操作" onclick="openMemoPopover(event, '${m.id}', this)">···</button>
+                </div>
+                <div class="memo-body">${renderContentWithTags(m.content)}</div>
+            </div>
+        `;
+    }
+
+    function renderEditCard(m) {
+        return `
+            <div class="memo-card editing" data-id="${m.id}">
+                <div class="inline-editor-toolbar">
+                    <span class="inline-editor-label">编辑笔记</span>
+                    <span class="spacer"></span>
+                    <button class="inline-btn" onclick="cancelInlineEdit()">取消</button>
+                    <button class="inline-btn primary" onclick="saveInlineEdit()">保存</button>
+                </div>
+                <div class="inline-editor" id="inlineEditor-${m.id}" contenteditable="true"
+                     data-placeholder="编辑内容..."
+                     oninput="onInlineInput('${m.id}')"
+                     onkeydown="handleInlineEditorKeydown(event)">${mdToHtml(m.content)}</div>
+                <div class="inline-editor-footer">
+                    <button class="tool-btn" onclick="openImagePicker('inlineEditor-${m.id}')" title="插入图片">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="3" y="3" width="18" height="18" rx="2.5"/>
+                            <circle cx="8.5" cy="8.5" r="1.3"/>
+                            <path d="M21 15.5l-4.6-4.6L6.2 21"/>
+                        </svg>
+                        <span>图片</span>
+                    </button>
+                    <button class="tool-btn" onclick="insertTextAtCursor(document.getElementById('inlineEditor-${m.id}'), '#')" title="插入标题标签">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M9 4L7 20"/>
+                            <path d="M17 4l-2 16"/>
+                            <path d="M4 9h16"/>
+                            <path d="M3 15h16"/>
+                        </svg>
+                        <span>标题</span>
+                    </button>
+                    <span class="inline-char-count" id="inlineCharCount-${m.id}">${countChars(m.content)} 字</span>
+                </div>
+            </div>
+        `;
+    }
+
+    function commitInlineDraft() {
+        if (!state.editingMemoId) return;
+        const el = document.getElementById('inlineEditor-' + state.editingMemoId);
+        if (!el) return;
+        const memo = state.memos.find(m => m.id === state.editingMemoId);
+        if (!memo) return;
+        const md = htmlToMd(el);
+        if (md && md.trim()) memo.content = md;
+    }
+
+    function renderMemos() {
+        const list = document.getElementById('memoList');
+        if (!list) return;
+
+        commitInlineDraft();
+
+        const memos = getFilteredMemos();
+
+        if (memos.length === 0) {
+            let hint = '还没有笔记<br>在上方输入框记录第一个想法吧';
+            if (state.currentView === 'date') hint = '这一天还没有笔记';
+            else if (state.currentView === 'tag') hint = '这个标题下还没有笔记';
+            else if (state.memos.length > 0) hint = '暂无未带标题的笔记<br>带标题的笔记请从左侧标题列表查看';
+            list.innerHTML = `<div class="empty-state"><div class="empty-icon">🌱</div><p>${hint}</p></div>`;
+        } else {
+            list.innerHTML = memos.map(m => {
+                if (m.id === state.editingMemoId) return renderEditCard(m);
+                return renderViewCard(m);
+            }).join('');
+        }
+
+        if (focusInlinePending && state.editingMemoId) {
+            const id = state.editingMemoId;
+            focusInlinePending = false;
+            requestAnimationFrame(() => focusInlineEditor(id, true));
+        }
+
+        updateMobileCount();
+    }
+
+    function updateMobileCount() {
+        const el = document.getElementById('mobileCount');
+        if (el) el.textContent = state.memos.length;
+    }
+
+    function updateInputAreaVisibility() {
+        const inputArea = document.getElementById('inputArea');
+        const mainArea = document.getElementById('mainArea');
+        const isTagView = state.currentView === 'tag';
+        if (inputArea) inputArea.style.display = isTagView ? 'none' : '';
+        if (mainArea) mainArea.classList.toggle('tag-view', isTagView);
+    }
+
+    function renderAll() {
+        renderCalendar();
+        renderTags();
+        renderMemos();
+        updateInputAreaVisibility();
+    }
+
+    // ==================== 移动端抽屉 ====================
+    function isMobile() {
+        return window.innerWidth <= 820;
+    }
+
+    function openSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        if (!sidebar || !overlay) return;
+        sidebar.classList.add('open');
+        overlay.classList.add('show');
+        document.body.classList.add('sidebar-open');
+    }
+
+    function closeSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        if (!sidebar || !overlay) return;
+        sidebar.classList.remove('open');
+        overlay.classList.remove('show');
+        document.body.classList.remove('sidebar-open');
+    }
+
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        if (!sidebar) return;
+        if (sidebar.classList.contains('open')) closeSidebar();
+        else openSidebar();
+    }
+
+    function bindMobileDrawer() {
+        const menuToggle = document.getElementById('menuToggle');
+        const overlay = document.getElementById('overlay');
+
+        if (menuToggle) {
+            menuToggle.addEventListener('click', function (e) {
+                e.stopPropagation();
+                toggleSidebar();
+            });
+        }
+        if (overlay) {
+            overlay.addEventListener('click', closeSidebar);
+        }
+
+        window.addEventListener('resize', function () {
+            if (window.innerWidth > 820) closeSidebar();
+        });
+
+        window.addEventListener('orientationchange', function () {
+            setTimeout(function () {
+                if (window.innerWidth > 820) closeSidebar();
+            }, 120);
+        });
+    }
+
+    // ==================== 内联编辑逻辑 ====================
+    function focusInlineEditor(id, toEnd) {
+        const el = document.getElementById('inlineEditor-' + id);
+        if (!el) return;
+        el.focus();
+        if (toEnd) {
+            try {
+                const range = document.createRange();
+                range.selectNodeContents(el);
+                range.collapse(false);
+                const sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+            } catch (e) { /* ignore */ }
+        }
+        updateInlineCharCount(id);
+    }
+
+    function updateInlineCharCount(id) {
+        const el = document.getElementById('inlineEditor-' + id);
+        const c = document.getElementById('inlineCharCount-' + id);
+        if (el && c) c.textContent = countEditorChars(el) + ' 字';
+    }
+
+    function onInlineInput(id) {
+        const el = document.getElementById('inlineEditor-' + id);
+        if (el) cleanupEmpty(el);
+        updateInlineCharCount(id);
+    }
+
+    function handleInlineEditorKeydown(e) {
+        if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+            e.preventDefault();
+            saveInlineEdit();
+        }
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            cancelInlineEdit();
+        }
+    }
+
+    function startEditInline(id) {
+        if (state.editingMemoId && state.editingMemoId !== id) {
+            cancelInlineEdit();
+        }
+        const memo = state.memos.find(m => m.id === id);
+        if (!memo) return;
+        state.editingMemoId = id;
+        inlineEditOriginal = { id: id, content: memo.content };
+        focusInlinePending = true;
+        renderMemos();
+        const card = document.querySelector(`.memo-card[data-id="${id}"]`);
+        if (card && typeof card.scrollIntoView === 'function') {
+            card.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+    }
+
+    function cancelInlineEdit() {
+        if (!state.editingMemoId) return;
+        const id = state.editingMemoId;
+        if (inlineEditOriginal && inlineEditOriginal.id === id) {
+            const memo = state.memos.find(m => m.id === id);
+            if (memo) memo.content = inlineEditOriginal.content;
+        }
+        state.editingMemoId = null;
+        inlineEditOriginal = null;
+        focusInlinePending = false;
+        renderMemos();
+    }
+
+    function saveInlineEdit() {
+        const id = state.editingMemoId;
+        if (!id) return;
+        const el = document.getElementById('inlineEditor-' + id);
+        const memo = state.memos.find(m => m.id === id);
+        if (!el || !memo) {
+            state.editingMemoId = null;
+            inlineEditOriginal = null;
+            renderMemos();
+            return;
+        }
+        const md = htmlToMd(el);
+        if (!md || !md.trim()) {
+            showToast('内容不能为空');
+            return;
+        }
+        memo.content = md;
+        memo.tags = extractTags(md);
+        memo.updatedAt = new Date().toISOString();
+        saveData();
+        state.editingMemoId = null;
+        inlineEditOriginal = null;
+        focusInlinePending = false;
+        renderAll();
+        showToast('已保存');
+    }
+
+    function autoSaveInlineEdit() {
+        if (!state.editingMemoId) return;
+        const id = state.editingMemoId;
+        const el = document.getElementById('inlineEditor-' + id);
+        const memo = state.memos.find(m => m.id === id);
+        if (el && memo) {
+            const md = htmlToMd(el);
+            if (md && md.trim()) {
+                memo.content = md;
+                memo.tags = extractTags(md);
+                memo.updatedAt = new Date().toISOString();
+                saveData();
+            }
+        }
+        state.editingMemoId = null;
+        inlineEditOriginal = null;
+        focusInlinePending = false;
+    }
+
+    // ==================== 锚定浮层 ====================
+    function currentMemo() {
+        return state.memos.find(m => m.id === popoverState.memoId) || null;
+    }
+
+    function openMemoPopover(e, id, btnEl) {
+        if (e) e.stopPropagation();
+        const memo = state.memos.find(m => m.id === id);
+        if (!memo) return;
+
+        if (popoverState.memoId === id && isPopoverOpen()) {
+            closeMemoPopover();
+            return;
+        }
+
+        popoverState.memoId = id;
+
+        const pop = document.getElementById('memoPopover');
+        const pinLabel = document.getElementById('pinActionLabel');
+        const countEl = document.getElementById('popCharCount');
+        const updatedEl = document.getElementById('popUpdated');
+
+        if (pinLabel) pinLabel.textContent = memo.pinned ? '取消置顶' : '置顶';
+        if (countEl) countEl.textContent = `${countChars(memo.content)} 字`;
+        if (updatedEl) updatedEl.textContent = formatDateShort(memo.updatedAt || memo.createdAt);
+
+        const rect = btnEl.getBoundingClientRect();
+        pop.style.visibility = 'hidden';
+        pop.classList.add('show');
+        pop.style.top = '0px';
+        pop.style.left = '0px';
+
+        const pw = pop.offsetWidth;
+        const ph = pop.offsetHeight;
+        const margin = 8;
+
+        let left = rect.right - pw;
+        if (left < margin) left = margin;
+        if (left + pw > window.innerWidth - margin) left = window.innerWidth - pw - margin;
+
+        let top = rect.bottom + 6;
+        if (top + ph > window.innerHeight - margin) {
+            top = rect.top - ph - 6;
+            if (top < margin) top = margin;
+        }
+
+        pop.style.left = left + 'px';
+        pop.style.top = top + 'px';
+        pop.style.visibility = 'visible';
+    }
+
+    function isPopoverOpen() {
+        const pop = document.getElementById('memoPopover');
+        return pop && pop.classList.contains('show');
+    }
+
+    function closeMemoPopover() {
+        const pop = document.getElementById('memoPopover');
+        if (pop) pop.classList.remove('show');
+        popoverState.memoId = null;
+    }
+
+    // ==================== 编辑入口 / 复制 / 置顶 / 删除 ====================
+    function startEdit() {
+        const memo = currentMemo();
+        if (!memo) return;
+        closeMemoPopover();
+        startEditInline(memo.id);
+    }
+
+    async function copyCurrentMemo() {
+        const memo = currentMemo();
+        if (!memo) return;
+        const text = plainText(memo.content).trim();
+        try {
+            await navigator.clipboard.writeText(text);
+            showToast('已复制到剪贴板');
+            closeMemoPopover();
+        } catch (err) {
+            try {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed';
+                ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                showToast('已复制到剪贴板');
+                closeMemoPopover();
+            } catch (e2) {
+                showToast('复制失败');
+            }
+        }
+    }
+
+    function togglePinCurrent() {
+        const memo = currentMemo();
+        if (!memo) return;
+        if (state.editingMemoId && state.editingMemoId !== memo.id) {
+            autoSaveInlineEdit();
+        }
+        memo.pinned = !memo.pinned;
+        memo.updatedAt = new Date().toISOString();
+        saveData();
+        renderAll();
+        showToast(memo.pinned ? '已置顶' : '已取消置顶');
+        closeMemoPopover();
+    }
+
+    function deleteCurrentMemo() {
+        const memo = currentMemo();
+        if (!memo) return;
+        if (!confirm('确定删除这条笔记吗？')) return;
+        if (state.editingMemoId === memo.id) {
+            state.editingMemoId = null;
+            inlineEditOriginal = null;
+            focusInlinePending = false;
+        } else if (state.editingMemoId) {
+            autoSaveInlineEdit();
+        }
+        state.memos = state.memos.filter(m => m.id !== memo.id);
+        // 记录墓碑，云端同步时一并删除
+        tombstones[memo.id] = Date.now();
+        saveTombstones();
+        saveData();
+        closeMemoPopover();
+        renderAll();
+        showToast('已删除');
+    }
+
+    // =========================================================
+    //  腾讯云 CloudBase 同步（多端同步）
+    // =========================================================
+    function cloudLoadCfg() {
+        try {
+            const raw = localStorage.getItem(CB_CFG_KEY);
+            if (raw) {
+                const o = JSON.parse(raw);
+                return {
+                    envId: (o.envId || '').trim(),
+                    accessKey: (o.accessKey || '').trim()
+                };
+            }
+        } catch (e) { /* ignore */ }
+        return { envId: '', accessKey: '' };
+    }
+
+    function cloudSaveCfg() {
+        try {
+            localStorage.setItem(CB_CFG_KEY, JSON.stringify(cbCfg));
+        } catch (e) { /* ignore */ }
+    }
+
+    function cloudHasCfg() {
+        return !!(cbCfg.envId && cbCfg.accessKey);
+    }
+
+    /** 更新图标上的状态圆点与弹窗状态文字 */
+    function setCloudStatus(text, stateName) {
+        const dot = document.getElementById('cloudDot');
+        if (dot) dot.className = 'dot' + (stateName ? ' ' + stateName : '');
+
+        const modalDot = document.getElementById('modalCloudDot');
+        if (modalDot) modalDot.className = 'cloud-dot' + (stateName ? ' ' + stateName : '');
+
+        const modalStatus = document.getElementById('modalCloudStatus');
+        if (modalStatus) modalStatus.textContent = text;
+    }
+
+    async function cloudInit() {
+        if (!cloudHasCfg()) {
+            setCloudStatus('未配置 · 仅本地', '');
+            cbReady = false;
+            return false;
+        }
+
+        if (typeof cloudbase === 'undefined') {
+            setCloudStatus('SDK 未加载', 'err');
+            cbReady = false;
+            return false;
+        }
+
+        try {
+            setCloudStatus('连接中…', 'sync');
+
+            cbApp = cloudbase.init({
+                env: cbCfg.envId,
+                accessKey: cbCfg.accessKey
+            });
+
+            const auth = cbApp.auth({ persistence: 'local' });
+
+            if (!auth.hasLoginState()) {
+                await auth.signInAnonymously();
+                console.log('[CloudBase] 匿名登录成功');
+            } else {
+                console.log('[CloudBase] 复用已有登录态');
+            }
+
+            cbDb = cbApp.database();
+            cbReady = true;
+            console.log('[CloudBase] 初始化完成，环境:', cbCfg.envId);
+            return true;
+        } catch (err) {
+            console.error('[CloudBase init]', err);
+            cbReady = false;
+            const msg = String(
+                (err && (err.message || err.error_description || err.error)) || err || '未知错误'
+            );
+            setCloudStatus('连接失败：' + msg.slice(0, 46), 'err');
+            return false;
+        }
+    }
+
+    function cloudScheduleSync() {
+        if (!cloudHasCfg()) return;
+        clearTimeout(cbTimer);
+        cbTimer = setTimeout(function() { cloudSyncNow(); }, 2000);
+    }
+
+    /** 分批上传，单条失败不影响整体 */
+    async function cloudUploadAll(col, docs) {
+        let failed = 0;
+        const BATCH = 8;
+        for (let i = 0; i < docs.length; i += BATCH) {
+            const slice = docs.slice(i, i + BATCH);
+            const results = await Promise.allSettled(
+                slice.map(d => col.doc(d.id).set(d.data))
+            );
+            results.forEach(r => {
+                if (r.status === 'rejected') {
+                    failed++;
+                    console.warn('[云同步] 单条上传失败', r.reason);
+                }
+            });
+        }
+        return failed;
+    }
+
+    async function cloudSyncNow() {
+        if (!cloudHasCfg()) {
+            setCloudStatus('未配置 · 仅本地', '');
+            return;
+        }
+        if (cbSyncing) return;
+        if (!cbReady) {
+            const ok = await cloudInit();
+            if (!ok) return;
+        }
+
+        cbSyncing = true;
+        setCloudStatus('同步中…', 'sync');
+
+        try {
+            const col = cbDb.collection(CB_COLLECTION);
+
+            /* ---- 1. 上传本地笔记 ---- */
+            const uploadDocs = [];
+            state.memos.forEach(n => {
+                uploadDocs.push({
+                    id: n.id,
+                    data: {
+                        body: n.content || '',
+                        created_at: n.createdAt,
+                        updated_at: n.updatedAt || n.createdAt,
+                        pinned: !!n.pinned,
+                        deleted: false
+                    }
+                });
+            });
+            /* ---- 2. 上传删除墓碑 ---- */
+            Object.keys(tombstones).forEach(id => {
+                const t = tombstones[id];
+                uploadDocs.push({
+                    id: id,
+                    data: {
+                        body: '',
+                        created_at: new Date(t).toISOString(),
+                        updated_at: new Date(t).toISOString(),
+                        pinned: false,
+                        deleted: true
+                    }
+                });
+            });
+
+            const failed = await cloudUploadAll(col, uploadDocs);
+
+            /* ---- 3. 拉取云端数据 ---- */
+            const remote = [];
+            const MAX = 100;
+            let skip = 0;
+            while (true) {
+                const res = await col.skip(skip).limit(MAX).get();
+                const list = (res && res.data) || [];
+                remote.push.apply(remote, list);
+                if (list.length < MAX) break;
+                skip += MAX;
+                if (skip > 5000) break;
+            }
+
+            /* ---- 4. 合并（按 updated_at + 墓碑时间取最新） ---- */
+            const localMap = new Map();
+            state.memos.forEach(n => localMap.set(n.id, n));
+            const tomb = Object.assign({}, tombstones);
+
+            remote.forEach(doc => {
+                const id = doc._id || doc.id;
+                if (!id) return;
+
+                const rMod = new Date(doc.updated_at || doc.created_at || 0).getTime();
+                const rDel = !!doc.deleted;
+                const local = localMap.get(id);
+                const lMod = local
+                    ? new Date(local.updatedAt || local.createdAt || 0).getTime()
+                    : -1;
+                const prevTomb = tomb[id] || 0;
+
+                if (rDel) {
+                    if (rMod >= lMod && rMod >= prevTomb) {
+                        tomb[id] = rMod;
+                        localMap.delete(id);
+                    }
+                    return;
+                }
+                if (rMod < prevTomb) return;
+                if (local && rMod <= lMod) return;
+
+                const content = String(doc.body || '');
+                localMap.set(id, {
+                    id: id,
+                    content: content,
+                    tags: extractTags(content),
+                    createdAt: doc.created_at || new Date().toISOString(),
+                    updatedAt: doc.updated_at || doc.created_at || new Date().toISOString(),
+                    pinned: !!doc.pinned
+                });
+                delete tomb[id];
+            });
+
+            tombstones = tomb;
+            state.memos = Array.from(localMap.values());
+
+            /* ---- 5. 回写本地 ---- */
+            cbInternalSave = true;
+            saveData(true);
+            saveTombstones();
+            cbInternalSave = false;
+
+            renderAll();
+
+            const now = new Date();
+            const timeStr = pad2(now.getHours()) + ':' + pad2(now.getMinutes());
+            setCloudStatus('已同步 · ' + timeStr + ' · ' + state.memos.length + ' 条', 'ok');
+
+            if (failed > 0) {
+                showToast(`已同步，但有 ${failed} 条上传失败（可能含图片过大）`);
+            }
+        } catch (err) {
+            console.error('[CloudBase sync]', err);
+            const msg = String(
+                (err && (err.message || err.error_description || err.error)) || err || '未知错误'
+            );
+            setCloudStatus('同步失败：' + msg.slice(0, 46), 'err');
+            showToast('同步失败：' + msg.slice(0, 60));
+        } finally {
+            cbSyncing = false;
+        }
+    }
+
+    // ===== 云配置弹窗 =====
+    function openCloudModal() {
+        if (isMobile()) closeSidebar();
+        document.getElementById('cbEnvId').value = cbCfg.envId || '';
+        document.getElementById('cbAccessKey').value = cbCfg.accessKey || '';
+        setCloudStatus(
+            cloudHasCfg() ? '已配置 · 可立即同步' : '未配置 · 仅本地',
+            cloudHasCfg() ? 'ok' : ''
+        );
+        closeMemoPopover();
+        closeDataModal();
+        document.getElementById('cloudModal').classList.add('show');
+    }
+
+    function closeCloudModal() {
+        document.getElementById('cloudModal').classList.remove('show');
+    }
+
+    function handleCloudOverlayClick(e) {
+        if (e.target.id === 'cloudModal') closeCloudModal();
+    }
+
+    function readCloudForm() {
+        return {
+            envId: document.getElementById('cbEnvId').value.trim(),
+            accessKey: document.getElementById('cbAccessKey').value.trim()
+        };
+    }
+
+    async function saveCloudConfigAndSync() {
+        const cfg = readCloudForm();
+        if (!cfg.envId || !cfg.accessKey) {
+            showToast('请填写环境 ID 和 Publishable Key');
+            return;
+        }
+
+        cbCfg = cfg;
+        cloudSaveCfg();
+        closeCloudModal();
+
+        cbApp = null;
+        cbDb = null;
+        cbReady = false;
+
+        setCloudStatus('连接中…', 'sync');
+        const ok = await cloudInit();
+        if (ok) await cloudSyncNow();
+    }
+
+    async function syncNowManual() {
+        const cfg = readCloudForm();
+        if (!cfg.envId || !cfg.accessKey) {
+            showToast('请先填写环境 ID 和 Publishable Key');
+            return;
+        }
+
+        if (cfg.envId !== cbCfg.envId || cfg.accessKey !== cbCfg.accessKey) {
+            cbCfg = cfg;
+            cloudSaveCfg();
+            cbApp = null;
+            cbDb = null;
+            cbReady = false;
+        }
+
+        closeCloudModal();
+        await cloudSyncNow();
+    }
+
+    // ==================== 数据导入导出 ====================
+    function openDataModal() {
+        if (isMobile()) closeSidebar();
+        closeMemoPopover();
+        closeCloudModal();
+        document.getElementById('dataModal').classList.add('show');
+    }
+
+    function closeDataModal() {
+        document.getElementById('dataModal').classList.remove('show');
+    }
+
+    function handleDataOverlayClick(e) {
+        if (e.target.id === 'dataModal') closeDataModal();
+    }
+
+    function triggerImport() {
+        closeDataModal();
+        document.getElementById('importInput').click();
+    }
+
+    function exportJson() {
+        if (state.editingMemoId) autoSaveInlineEdit();
+        const data = {
+            app: 'flomo-clone',
+            version: 1,
+            exportedAt: new Date().toISOString(),
+            count: state.memos.length,
+            memos: state.memos
+        };
+        try {
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const d = new Date();
+            a.href = url;
+            a.download = `memo-backup-${d.getFullYear()}${pad2(d.getMonth() + 1)}${pad2(d.getDate())}-${pad2(d.getHours())}${pad2(d.getMinutes())}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 1500);
+            closeDataModal();
+            showToast(`已导出 ${state.memos.length} 条笔记`);
+        } catch (e) {
+            console.warn(e);
+            showToast('导出失败');
+        }
+    }
+
+    async function handleImport(e) {
+        const file = e.target.files && e.target.files[0];
+        e.target.value = '';
+        if (!file) return;
+
+        try {
+            const text = await file.text();
+            const parsed = JSON.parse(text);
+            let arr = null;
+            if (Array.isArray(parsed)) arr = parsed;
+            else if (parsed && Array.isArray(parsed.memos)) arr = parsed.memos;
+
+            if (!arr) {
+                showToast('文件格式不正确，未找到笔记数据');
+                return;
+            }
+
+            const cleaned = [];
+            arr.forEach(m => {
+                if (!m || typeof m.content !== 'string' || !m.content.trim()) return;
+                const createdAt = m.createdAt && !isNaN(new Date(m.createdAt))
+                    ? new Date(m.createdAt).toISOString()
+                    : new Date().toISOString();
+                const updatedAt = m.updatedAt && !isNaN(new Date(m.updatedAt))
+                    ? new Date(m.updatedAt).toISOString()
+                    : null;
+                cleaned.push({
+                    id: (typeof m.id === 'string' && m.id) ? m.id : generateId(),
+                    content: m.content,
+                    tags: extractTags(m.content),
+                    createdAt: createdAt,
+                    updatedAt: updatedAt,
+                    pinned: !!m.pinned
+                });
+            });
+
+            if (cleaned.length === 0) {
+                showToast('没有可导入的有效笔记');
+                return;
+            }
+
+            if (!confirm(`即将导入 ${cleaned.length} 条笔记，并与现有 ${state.memos.length} 条笔记合并。是否继续？`)) {
+                return;
+            }
+
+            if (state.editingMemoId) autoSaveInlineEdit();
+
+            const existingIds = new Set(state.memos.map(m => m.id));
+            let added = 0;
+            cleaned.forEach(m => {
+                if (existingIds.has(m.id)) m.id = generateId();
+                existingIds.add(m.id);
+                state.memos.push(m);
+                added++;
+            });
+
+            saveData();
+            clearFilter();
+            showToast(`已导入 ${added} 条笔记`);
+        } catch (err) {
+            console.warn(err);
+            showToast('解析失败，请检查 JSON 文件');
+        }
+    }
+
+    // ==================== 编辑器通用工具 ====================
+    let isComposing = false;
+
+    function showToast(msg) {
+        const el = document.getElementById('toast');
+        if (!el) return;
+        el.textContent = msg;
+        el.classList.add('show');
+        clearTimeout(el._t);
+        el._t = setTimeout(() => el.classList.remove('show'), 2400);
+    }
+
+    function openImage(src) {
+        const box = document.getElementById('lightbox');
+        const img = document.getElementById('lightboxImg');
+        if (!box || !img) return;
+        img.src = src;
+        box.classList.add('show');
+    }
+
+    function closeLightbox() {
+        const box = document.getElementById('lightbox');
+        const img = document.getElementById('lightboxImg');
+        if (box) box.classList.remove('show');
+        if (img) img.src = '';
+    }
+
+    function cleanupEmpty(editor) {
+        if (!editor) return;
+        if (editor.textContent.trim() === '' && !editor.querySelector('img')) {
+            const html = editor.innerHTML.trim();
+            if (html === '<br>' || html === '<div><br></div>' || html === '<div></div>' || html === '<p><br></p>') {
+                editor.innerHTML = '';
+            }
+        }
+    }
+
+    function onEditorInput(editor) {
+        cleanupEmpty(editor);
+    }
+
+    function updateSendBtn() {
+        const editor = document.getElementById('memoEditor');
+        const btn = document.getElementById('sendBtn');
+        if (!btn || !editor) return;
+        const has = editor.textContent.trim().length > 0 || !!editor.querySelector('img');
+        btn.disabled = !has;
+    }
+
+    function handleInputKeydown(e) {
+        if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && !isComposing) {
+            e.preventDefault();
+            sendMemo();
+        }
+        if (e.key === 'Process' || e.keyCode === 229) isComposing = true;
+    }
+
+    document.addEventListener('compositionstart', () => { isComposing = true; });
+    document.addEventListener('compositionend', () => { isComposing = false; });
+
+    function insertTextAtCursor(editor, text) {
+        if (!editor) return;
+        editor.focus();
+        const sel = window.getSelection();
+        let range;
+        if (sel.rangeCount && editor.contains(sel.anchorNode)) {
+            range = sel.getRangeAt(0);
+        } else {
+            range = document.createRange();
+            range.selectNodeContents(editor);
+            range.collapse(false);
+        }
+        range.deleteContents();
+        const node = document.createTextNode(text);
+        range.insertNode(node);
+        const nr = document.createRange();
+        nr.setStartAfter(node);
+        nr.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(nr);
+        cleanupEmpty(editor);
+        updateSendBtn();
+        updateEditorCharCountIfInline(editor);
+    }
+
+    function insertImageAtCursor(editor, dataUrl) {
+        if (!editor) return;
+        editor.focus();
+        const sel = window.getSelection();
+        let range = null;
+        if (sel.rangeCount && editor.contains(sel.anchorNode)) {
+            range = sel.getRangeAt(0);
+        }
+        if (!range) {
+            range = document.createRange();
+            range.selectNodeContents(editor);
+            range.collapse(false);
+        }
+        range.deleteContents();
+
+        const wrapper = document.createElement('div');
+        const img = document.createElement('img');
+        img.src = dataUrl;
+        img.alt = '';
+        img.className = 'editable-image';
+        wrapper.appendChild(img);
+        range.insertNode(wrapper);
+
+        const nr = document.createRange();
+        nr.setStartAfter(wrapper);
+        nr.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(nr);
+
+        cleanupEmpty(editor);
+        updateSendBtn();
+        updateEditorCharCountIfInline(editor);
+    }
+
+    function updateEditorCharCountIfInline(editor) {
+        if (!editor || !editor.id || editor.id.indexOf('inlineEditor-') !== 0) return;
+        const id = editor.id.slice('inlineEditor-'.length);
+        updateInlineCharCount(id);
+    }
+
+    function openImagePicker(targetId) {
+        imageTarget = targetId;
+        document.getElementById('imageInput').click();
+    }
+
+    function compressImage(file, maxWidth = 900, quality = 0.72) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const img = new Image();
+                img.onload = () => {
+                    let { width, height } = img;
+                    if (width > maxWidth) {
+                        height = Math.round(height * maxWidth / width);
+                        width = maxWidth;
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, width, height);
+                    ctx.drawImage(img, 0, 0, width, height);
+                    resolve(canvas.toDataURL('image/jpeg', quality));
+                };
+                img.onerror = reject;
+                img.src = reader.result;
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+    async function handleImageUpload(e) {
+        const files = Array.from(e.target.files || []);
+        e.target.value = '';
+        if (!files.length) return;
+        const editor = document.getElementById(imageTarget);
+        if (!editor) return;
+
+        for (const file of files) {
+            if (!file.type.startsWith('image/')) continue;
+            try {
+                const dataUrl = await compressImage(file);
+                insertImageAtCursor(editor, dataUrl);
+            } catch (err) {
+                showToast('图片处理失败');
+            }
+        }
+    }
+
+    // ==================== 发送 ====================
+    function sendMemo() {
+        const editor = document.getElementById('memoEditor');
+        const content = htmlToMd(editor);
+        if (!content || !content.trim()) return;
+
+        if (state.editingMemoId) autoSaveInlineEdit();
+
+        const now = new Date().toISOString();
+        const memo = {
+            id: generateId(),
+            content: content,
+            tags: extractTags(content),
+            createdAt: now,
+            updatedAt: null,
+            pinned: false
+        };
+
+        state.memos.unshift(memo);
+
+        const ok = saveData();
+        if (!ok) {
+            showToast('本地存储空间已满，图片可能过大，建议减少图片数量');
+        }
+
+        editor.innerHTML = '';
+        updateSendBtn();
+        editor.focus();
+
+        if (state.currentView === 'tag' && state.currentTag && !(memo.tags || []).includes(state.currentTag)) {
+            state.currentView = 'all';
+            state.currentTag = null;
+        }
+        if (state.currentView === 'date') {
+            state.currentView = 'all';
+            state.currentDate = null;
+        }
+
+        renderAll();
+        const list = document.getElementById('memoList');
+        if (list) list.scrollTop = 0;
+    }
+
+    // ==================== 视图 / 筛选 ====================
+    function changeMonth(delta) {
+        const { year, month } = state.calendarMonth;
+        const d = new Date(year, month + delta, 1);
+        state.calendarMonth = { year: d.getFullYear(), month: d.getMonth() };
+        renderCalendar();
+    }
+
+    function filterByTag(tag) {
+        if (state.currentView === 'tag' && state.currentTag === tag) {
+            clearFilter();
+            if (isMobile()) closeSidebar();
+            return;
+        }
+        if (state.editingMemoId) autoSaveInlineEdit();
+        state.currentView = 'tag';
+        state.currentTag = tag;
+        state.currentDate = null;
+        renderAll();
+        // 手机上选完标题自动收起抽屉，露出内容
+        if (isMobile()) closeSidebar();
+    }
+
+    function filterByDate(key) {
+        if (state.currentView === 'date' && state.currentDate === key) {
+            clearFilter();
+            if (isMobile()) closeSidebar();
+            return;
+        }
+        if (state.editingMemoId) autoSaveInlineEdit();
+        state.currentView = 'date';
+        state.currentDate = key;
+        state.currentTag = null;
+        renderAll();
+        if (isMobile()) closeSidebar();
+    }
+
+    function clearFilter() {
+        if (state.editingMemoId) autoSaveInlineEdit();
+        state.currentView = 'all';
+        state.currentTag = null;
+        state.currentDate = null;
+        renderAll();
+    }
+
+    // ==================== 初始化 ====================
+    function bindEvents() {
+        const editor = document.getElementById('memoEditor');
+        if (!editor) return;
+
+        editor.addEventListener('paste', async (e) => {
+            const items = Array.from(e.clipboardData?.items || []);
+            const imageItems = items.filter(it => it.type && it.type.startsWith('image/'));
+            if (imageItems.length === 0) return;
+            e.preventDefault();
+            for (const it of imageItems) {
+                const file = it.getAsFile();
+                if (!file) continue;
+                try {
+                    const dataUrl = await compressImage(file);
+                    insertImageAtCursor(editor, dataUrl);
+                } catch (err) {
+                    showToast('图片处理失败');
+                }
+            }
+        });
+
+        const memoList = document.getElementById('memoList');
+        if (memoList) {
+            memoList.addEventListener('paste', async (e) => {
+                const el = e.target.closest ? e.target.closest('.inline-editor') : null;
+                if (!el) return;
+                const items = Array.from(e.clipboardData?.items || []);
+                const imageItems = items.filter(it => it.type && it.type.startsWith('image/'));
+                if (imageItems.length === 0) return;
+                e.preventDefault();
+                for (const it of imageItems) {
+                    const file = it.getAsFile();
+                    if (!file) continue;
+                    try {
+                        const dataUrl = await compressImage(file);
+                        insertImageAtCursor(el, dataUrl);
+                    } catch (err) {
+                        showToast('图片处理失败');
+                    }
+                }
+            });
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!isPopoverOpen()) return;
+            const pop = document.getElementById('memoPopover');
+            if (pop.contains(e.target)) return;
+            if (e.target.closest('.memo-more')) return;
+            closeMemoPopover();
+        });
+
+        if (memoList) {
+            memoList.addEventListener('scroll', () => {
+                if (isPopoverOpen()) closeMemoPopover();
+            }, { passive: true });
+        }
+        window.addEventListener('resize', () => {
+            if (isPopoverOpen()) closeMemoPopover();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                if (state.editingMemoId) {
+                    const el = document.getElementById('inlineEditor-' + state.editingMemoId);
+                    if (el) el.focus();
+                } else if (state.currentView !== 'tag') {
+                    editor.focus();
+                }
+            }
+            if (e.key === 'Escape') {
+                closeLightbox();
+                if (isPopoverOpen()) closeMemoPopover();
+                if (document.getElementById('cloudModal').classList.contains('show')) closeCloudModal();
+                if (document.getElementById('dataModal').classList.contains('show')) closeDataModal();
+                if (document.getElementById('sidebar').classList.contains('open')) closeSidebar();
+            }
+        });
+
+        // 页面切回前台时自动同步
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && cloudHasCfg() && cbReady && !cbSyncing) {
+                cloudSyncNow();
+            }
+        });
+
+        bindMobileDrawer();
+    }
+
+    function init() {
+        loadData();
+        tombstones = loadTombstones();
+
+        if (state.memos.length === 0 && !localStorage.getItem(STORAGE_KEY)) {
+            const now = new Date();
+            const examples = [
+                { content: '记录的核心设计理念是「无压记录」，像聊天一样简单。\n\n#产品设计', daysAgo: 0 },
+                { content: '今天读到了一句话：真正的笔记产品，应该能让你记录的更多，因为只有被记录下来的想法才有价值。\n\n#阅读', daysAgo: 1 },
+                { content: '用标题而不是文件夹来管理笔记，一条笔记可以属于多个标题，灵活太多了。\n\n#方法论', daysAgo: 3 },
+                { content: '* 少即是多\n* 拒绝过度设计\n* 保持简单\n\n#设计原则', daysAgo: 5 },
+                { content: '记录下今天的小确幸：午后的一杯咖啡，和窗外的阳光。\n\n#生活', daysAgo: 8 },
+                { content: '随手记：突然想到一个点子，周末去看看那家新开的面包店。', daysAgo: 0 },
+                { content: '今天走了 8000 步，天气很好，适合散步。', daysAgo: 2 }
+            ];
+            examples.forEach((ex, i) => {
+                const d = new Date(now);
+                d.setDate(d.getDate() - ex.daysAgo);
+                d.setHours(10 + i, 30, 0, 0);
+                state.memos.push({
+                    id: generateId(),
+                    content: ex.content,
+                    tags: extractTags(ex.content),
+                    createdAt: d.toISOString(),
+                    updatedAt: null,
+                    pinned: false
+                });
+            });
+            saveData(true);
+        }
+
+        renderAll();
+        bindEvents();
+        updateSendBtn();
+
+        const editor = document.getElementById('memoEditor');
+        if (editor) editor.focus();
+
+        // 云同步：加载配置并自动连接
+        cbCfg = cloudLoadCfg();
+        if (cloudHasCfg()) {
+            setCloudStatus('等待连接…', '');
+            cloudInit().then(ok => {
+                if (ok) cloudSyncNow();
+            });
+        } else {
+            setCloudStatus('未配置 · 仅本地', '');
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+</script>
+</body>
+</html>
